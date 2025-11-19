@@ -9,10 +9,10 @@
     <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
 
-    <!-- React Router DOM (module to force early load + prevent Cloudflare reordering) -->
-    <script type="module" src="https://unpkg.com/react-router-dom@6/umd/react-router-dom.development.js"></script>
+    <!-- ✅ React Router DOM v5 (UMD, no CORS issues, attaches to window.ReactRouterDOM) -->
+    <script src="https://unpkg.com/react-router-dom@5/umd/react-router-dom.min.js"></script>
 
-    <!-- Babel (must be last BEFORE your code) -->
+    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
@@ -39,18 +39,24 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { BrowserRouter, Routes, Route, useNavigate } = window.ReactRouterDOM;
+        const {
+            BrowserRouter,
+            Switch,
+            Route,
+            useHistory
+        } = window.ReactRouterDOM;
+
         const { useState } = React;
 
         /* -----------------------------
            TEST ROUTER COMPONENT
         ------------------------------ */
         function RouterTest() {
-            const navigate = useNavigate();
+            const history = useHistory();
             return (
                 <div style={{ padding: 20 }}>
                     <h1>Router Test Page</h1>
-                    <button onClick={() => navigate("/")}>
+                    <button onClick={() => history.push("/")}>
                         Go Home (router test)
                     </button>
                 </div>
@@ -237,15 +243,15 @@
         }
 
         /* -----------------------------
-           ROUTER WRAPPER
+           ROUTER WRAPPER (v5 Switch)
         ------------------------------ */
         function App() {
             return (
                 <BrowserRouter>
-                    <Routes>
-                        <Route path="/" element={<RankingApp />} />
-                        <Route path="/test" element={<RouterTest />} />
-                    </Routes>
+                    <Switch>
+                        <Route exact path="/" component={RankingApp} />
+                        <Route path="/test" component={RouterTest} />
+                    </Switch>
                 </BrowserRouter>
             );
         }
