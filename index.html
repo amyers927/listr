@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Ranking</title>
+    <title>Listr · Interactive Ranking</title>
 
     <!-- React + ReactDOM -->
     <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
 
-    <!-- ✅ React Router DOM v5 (UMD, no CORS issues, attaches to window.ReactRouterDOM) -->
+    <!-- React Router DOM v5 (UMD, attaches to window.ReactRouterDOM) -->
     <script src="https://unpkg.com/react-router-dom@5/umd/react-router-dom.min.js"></script>
 
     <!-- Babel -->
@@ -32,6 +32,129 @@
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif;
         }
         #root { width: 95%; max-width: 1200px; }
+
+        /* basic layout from your older version so it doesn't look naked */
+        .app-shell {
+            width: 100%;
+        }
+        .app-shell-inner {
+            border-radius: 18px;
+            padding: 24px 24px 28px;
+            background: radial-gradient(circle at 0 0, rgba(255,255,255,0.06), transparent 55%),
+                        radial-gradient(circle at 100% 100%, rgba(148,163,184,0.12), transparent 55%),
+                        rgba(15,23,42,0.9);
+            box-shadow: 0 22px 60px rgba(0,0,0,0.75);
+            border: 1px solid rgba(148,163,184,0.35);
+        }
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .app-title {
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            font-size: 11px;
+            color: #9ca3af;
+        }
+        .app-pill {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.7);
+            background: rgba(15,23,42,0.85);
+            color: #e5e7eb;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1.1fr 1.1fr;
+            gap: 18px;
+        }
+        .panel {
+            border-radius: 14px;
+            padding: 14px 14px 16px;
+            background: radial-gradient(circle at 0 0, rgba(148,163,184,0.16), transparent 55%),
+                        rgba(15,23,42,0.88);
+            border: 1px solid rgba(75,85,99,0.9);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .panel-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: #9ca3af;
+        }
+        .panel-subtitle {
+            font-size: 11px;
+            color: #6b7280;
+        }
+        .list-body {
+            border-radius: 10px;
+            padding: 10px;
+            background: radial-gradient(circle at 0 0, rgba(15,23,42,1), rgba(15,23,42,0.8));
+            border: 1px solid rgba(55,65,81,0.9);
+            max-height: 420px;
+            overflow-y: auto;
+        }
+        .hint {
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin-bottom: 7px;
+        }
+        .item, .ranked-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 9px;
+            padding: 7px 9px;
+            margin-bottom: 6px;
+            font-size: 13px;
+            background: linear-gradient(135deg, rgba(15,23,42,0.8), rgba(17,24,39,0.9));
+            border: 1px solid rgba(75,85,99,0.9);
+            cursor: grab;
+        }
+        .item:last-child,
+        .ranked-item:last-child {
+            margin-bottom: 0;
+        }
+        .ranked-badge {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.8);
+        }
+        .ranked-list {
+            border-radius: 10px;
+            padding: 10px;
+            background: radial-gradient(circle at 100% 0, rgba(15,23,42,0.95), rgba(15,23,42,0.8));
+            border: 1px solid rgba(55,65,81,0.9);
+            min-height: 120px;
+            max-height: 420px;
+            overflow-y: auto;
+            transition: border-color 120ms ease, box-shadow 120ms ease;
+        }
+        .ranked-list.is-dropping {
+            border-color: rgba(94,234,212,0.9);
+            box-shadow: 0 0 0 1px rgba(45,212,191,0.4);
+        }
+        .ranked-empty-state {
+            font-size: 12px;
+            color: #6b7280;
+            font-style: italic;
+        }
+        .rank-number {
+            font-size: 11px;
+            margin-right: 6px;
+            color: #94a3b8;
+        }
     </style>
 </head>
 
@@ -243,11 +366,12 @@
         }
 
         /* -----------------------------
-           ROUTER WRAPPER (v5 Switch)
+           ROUTER WRAPPER
+           KEY CHANGE: basename="/listr"
         ------------------------------ */
         function App() {
             return (
-                <BrowserRouter>
+                <BrowserRouter basename="/listr">
                     <Switch>
                         <Route exact path="/" component={RankingApp} />
                         <Route path="/test" component={RouterTest} />
