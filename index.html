@@ -6,17 +6,16 @@
     <title>Interactive Ranking</title>
 
     <!-- React + ReactDOM -->
-    <script defer src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script defer src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
 
-    <!-- Babel -->
-    <script defer src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- React Router DOM MUST load BEFORE Babel -->
+    <script src="https://unpkg.com/react-router-dom@6/umd/react-router-dom.development.js"></script>
 
-    <!-- React Router DOM (NEW) -->
-    <script defer src="https://unpkg.com/react-router-dom@6/umd/react-router-dom.development.js"></script>
+    <!-- Babel (last) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
-        /* YOUR STYLES UNCHANGED */
         * { box-sizing: border-box; }
         body {
             margin: 0;
@@ -33,8 +32,6 @@
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif;
         }
         #root { width: 95%; max-width: 1200px; }
-
-        /* all your styling untouched */
     </style>
 </head>
 
@@ -42,21 +39,14 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const {
-            BrowserRouter,
-            Routes,
-            Route,
-            useNavigate
-        } = ReactRouterDOM;
-
+        const { BrowserRouter, Routes, Route, useNavigate } = ReactRouterDOM;
         const { useState } = React;
 
         /* -----------------------------
-           TEST ROUTER COMPONENT (NEW)
+           TEST ROUTER COMPONENT
         ------------------------------*/
         function RouterTest() {
             const navigate = useNavigate();
-
             return (
                 <div style={{ padding: 20 }}>
                     <h1>Router Test Page</h1>
@@ -143,7 +133,6 @@
                     const sourceIndex = parseInt(e.dataTransfer.getData("sourceIndex"), 10);
                     if (!Number.isNaN(sourceIndex) && sourceIndex >= 0 && sourceIndex < rankedItems.length) {
                         if (sourceIndex === targetIndex) return;
-
                         const updated = [...rankedItems];
                         const [moved] = updated.splice(sourceIndex, 1);
                         const adjustedTarget = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
@@ -165,14 +154,11 @@
             return (
                 <div className="app-shell">
                     <div className="app-shell-inner">
-
-                        {/* HEADER */}
                         <div className="app-header">
                             <div className="app-title">Band Tier Console</div>
                             <div className="app-pill">NEON STACK · v0.1</div>
                         </div>
 
-                        {/* MAIN */}
                         <div className="container">
                             <div className="panel">
                                 <div className="panel-header">
@@ -251,7 +237,7 @@
         }
 
         /* -----------------------------
-           APP WITH ROUTER (NEW)
+           ROUTER WRAPPER
         ------------------------------*/
         function App() {
             return (
@@ -264,7 +250,6 @@
             );
         }
 
-        /* Mount the whole app */
         ReactDOM.render(<App />, document.getElementById("root"));
     </script>
 </body>
