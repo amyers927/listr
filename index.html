@@ -3,17 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listr · Interactive Ranking</title>
-
-    <!-- React + ReactDOM -->
-    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-
-    <!-- React Router DOM v5 (UMD, attaches to window.ReactRouterDOM) -->
-    <script src="https://unpkg.com/react-router-dom@5/umd/react-router-dom.min.js"></script>
-
-    <!-- Babel -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <title>Al-Beiruti Holdings</title>
 
     <style>
         * { box-sizing: border-box; }
@@ -31,356 +21,68 @@
             color: #e5e7eb;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif;
         }
-        #root { width: 95%; max-width: 1200px; }
 
-        /* basic layout from your older version so it doesn't look naked */
+        #root {
+            width: 95%;
+            max-width: 900px;
+        }
+
         .app-shell {
             width: 100%;
         }
         .app-shell-inner {
             border-radius: 18px;
-            padding: 24px 24px 28px;
+            padding: 32px 32px 40px;
             background: radial-gradient(circle at 0 0, rgba(255,255,255,0.06), transparent 55%),
                         radial-gradient(circle at 100% 100%, rgba(148,163,184,0.12), transparent 55%),
                         rgba(15,23,42,0.9);
             box-shadow: 0 22px 60px rgba(0,0,0,0.75);
             border: 1px solid rgba(148,163,184,0.35);
+            text-align: center;
         }
-        .app-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
+
         .app-title {
             letter-spacing: 0.16em;
             text-transform: uppercase;
-            font-size: 11px;
+            font-size: 14px;
+            margin-bottom: 18px;
             color: #9ca3af;
         }
-        .app-pill {
-            font-size: 11px;
-            padding: 4px 10px;
-            border-radius: 999px;
-            border: 1px solid rgba(148,163,184,0.7);
-            background: rgba(15,23,42,0.85);
-            color: #e5e7eb;
-        }
-        .container {
-            display: grid;
-            grid-template-columns: 1.1fr 1.1fr;
-            gap: 18px;
-        }
-        .panel {
-            border-radius: 14px;
-            padding: 14px 14px 16px;
-            background: radial-gradient(circle at 0 0, rgba(148,163,184,0.16), transparent 55%),
-                        rgba(15,23,42,0.88);
-            border: 1px solid rgba(75,85,99,0.9);
-        }
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .panel-title {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.16em;
-            color: #9ca3af;
-        }
-        .panel-subtitle {
-            font-size: 11px;
-            color: #6b7280;
-        }
-        .list-body {
-            border-radius: 10px;
-            padding: 10px;
-            background: radial-gradient(circle at 0 0, rgba(15,23,42,1), rgba(15,23,42,0.8));
-            border: 1px solid rgba(55,65,81,0.9);
-            max-height: 420px;
-            overflow-y: auto;
-        }
-        .hint {
-            font-size: 10px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: #6b7280;
-            margin-bottom: 7px;
-        }
-        .item, .ranked-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-radius: 9px;
-            padding: 7px 9px;
-            margin-bottom: 6px;
-            font-size: 13px;
+
+        .button {
+            margin-top: 24px;
+            display: inline-block;
+            padding: 14px 28px;
+            font-size: 15px;
+            border-radius: 12px;
             background: linear-gradient(135deg, rgba(15,23,42,0.8), rgba(17,24,39,0.9));
-            border: 1px solid rgba(75,85,99,0.9);
-            cursor: grab;
+            border: 1px solid rgba(148,163,184,0.6);
+            color: #e5e7eb;
+            text-decoration: none;
+            letter-spacing: 0.07em;
+            transition: 180ms ease;
+            cursor: pointer;
         }
-        .item:last-child,
-        .ranked-item:last-child {
-            margin-bottom: 0;
-        }
-        .ranked-badge {
-            width: 6px;
-            height: 6px;
-            border-radius: 999px;
-            border: 1px solid rgba(148,163,184,0.8);
-        }
-        .ranked-list {
-            border-radius: 10px;
-            padding: 10px;
-            background: radial-gradient(circle at 100% 0, rgba(15,23,42,0.95), rgba(15,23,42,0.8));
-            border: 1px solid rgba(55,65,81,0.9);
-            min-height: 120px;
-            max-height: 420px;
-            overflow-y: auto;
-            transition: border-color 120ms ease, box-shadow 120ms ease;
-        }
-        .ranked-list.is-dropping {
-            border-color: rgba(94,234,212,0.9);
-            box-shadow: 0 0 0 1px rgba(45,212,191,0.4);
-        }
-        .ranked-empty-state {
-            font-size: 12px;
-            color: #6b7280;
-            font-style: italic;
-        }
-        .rank-number {
-            font-size: 11px;
-            margin-right: 6px;
-            color: #94a3b8;
+
+        .button:hover {
+            border-color: rgba(236,72,153,0.8);
+            box-shadow: 0 0 12px rgba(236,72,153,0.4);
+            transform: translateY(-2px);
         }
     </style>
 </head>
 
 <body>
-    <div id="root"></div>
+    <div id="root">
+        <div class="app-shell">
+            <div class="app-shell-inner">
+                <div class="app-title">Al-Beiruti Holdings</div>
 
-    <script type="text/babel">
-        const {
-            BrowserRouter,
-            Switch,
-            Route,
-            useHistory
-        } = window.ReactRouterDOM;
-
-        const { useState } = React;
-
-        /* -----------------------------
-           TEST ROUTER COMPONENT
-        ------------------------------ */
-        function RouterTest() {
-            const history = useHistory();
-            return (
-                <div style={{ padding: 20 }}>
-                    <h1>Router Test Page</h1>
-                    <button onClick={() => history.push("/")}>
-                        Go Home (router test)
-                    </button>
-                </div>
-            );
-        }
-
-        /* -----------------------------
-           YOUR ORIGINAL APP
-        ------------------------------ */
-        function RankingApp() {
-            const [items, setItems] = useState([
-                "American Analog Set",
-                "Tortoise",
-                "The Cranberries",
-                "Hum",
-                "Rilo Kiley",
-                "Radiohead",
-                "Sufjan Stevens",
-                "Beach House",
-                "The Shins",
-                "Modest Mouse"
-            ]);
-
-            const [rankedItems, setRankedItems] = useState([]);
-            const [isDroppingOnRanked, setIsDroppingOnRanked] = useState(false);
-
-            const handleDragStartAvailable = (e, item) => {
-                e.dataTransfer.setData("drag-type", "available");
-                e.dataTransfer.setData("item", item);
-            };
-
-            const handleDragStartRanked = (e, index) => {
-                e.dataTransfer.setData("drag-type", "ranked");
-                e.dataTransfer.setData("sourceIndex", String(index));
-            };
-
-            const handleDragOver = (e) => {
-                e.preventDefault();
-            };
-
-            const handleDropOnRankedContainer = (e) => {
-                e.preventDefault();
-                setIsDroppingOnRanked(false);
-
-                const dragType = e.dataTransfer.getData("drag-type");
-
-                if (dragType === "available") {
-                    const item = e.dataTransfer.getData("item");
-                    if (item && !rankedItems.includes(item)) {
-                        setRankedItems([...rankedItems, item]);
-                        setItems(items.filter(i => i !== item));
-                    }
-                } else if (dragType === "ranked") {
-                    const sourceIndex = parseInt(e.dataTransfer.getData("sourceIndex"), 10);
-                    if (!Number.isNaN(sourceIndex) && sourceIndex >= 0 && sourceIndex < rankedItems.length) {
-                        const updated = [...rankedItems];
-                        const [moved] = updated.splice(sourceIndex, 1);
-                        updated.push(moved);
-                        setRankedItems(updated);
-                    }
-                }
-            };
-
-            const handleDropOnRankedItem = (e, targetIndex) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsDroppingOnRanked(false);
-
-                const dragType = e.dataTransfer.getData("drag-type");
-
-                if (dragType === "available") {
-                    const item = e.dataTransfer.getData("item");
-                    if (item && !rankedItems.includes(item)) {
-                        const updated = [...rankedItems];
-                        updated.splice(targetIndex, 0, item);
-                        setRankedItems(updated);
-                        setItems(items.filter(i => i !== item));
-                    }
-                } else if (dragType === "ranked") {
-                    const sourceIndex = parseInt(e.dataTransfer.getData("sourceIndex"), 10);
-                    if (!Number.isNaN(sourceIndex) && sourceIndex >= 0 && sourceIndex < rankedItems.length) {
-                        if (sourceIndex === targetIndex) return;
-                        const updated = [...rankedItems];
-                        const [moved] = updated.splice(sourceIndex, 1);
-                        const adjustedTarget = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
-                        updated.splice(adjustedTarget, 0, moved);
-                        setRankedItems(updated);
-                    }
-                }
-            };
-
-            const handleRankedDragEnter = (e) => {
-                e.preventDefault();
-                setIsDroppingOnRanked(true);
-            };
-
-            const handleRankedDragLeave = () => {
-                setIsDroppingOnRanked(false);
-            };
-
-            return (
-                <div className="app-shell">
-                    <div className="app-shell-inner">
-                        <div className="app-header">
-                            <div className="app-title">Band Tier Console</div>
-                            <div className="app-pill">NEON STACK · v0.1</div>
-                        </div>
-
-                        <div className="container">
-                            <div className="panel">
-                                <div className="panel-header">
-                                    <div>
-                                        <div className="panel-title">Available Bands</div>
-                                        <div className="panel-subtitle">Drag into your ranking grid →</div>
-                                    </div>
-                                </div>
-
-                                <div className="list-body">
-                                    <div className="hint">click + drag any name into the right-hand stack</div>
-
-                                    {items.map(item => (
-                                        <div
-                                            key={item}
-                                            className="item"
-                                            draggable
-                                            onDragStart={(e) => handleDragStartAvailable(e, item)}
-                                        >
-                                            <span>{item}</span>
-                                            <span className="ranked-badge"></span>
-                                        </div>
-                                    ))}
-
-                                    {items.length === 0 && (
-                                        <div className="ranked-empty-state">
-                                            all bands drafted. adjust the order on the right.
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="panel">
-                                <div className="panel-header">
-                                    <div>
-                                        <div className="panel-title">Ranking Stack</div>
-                                        <div className="panel-subtitle">Reorder</div>
-                                    </div>
-                                </div>
-
-                                <div
-                                    className={"ranked-list" + (isDroppingOnRanked ? " is-dropping" : "")}
-                                    onDragOver={handleDragOver}
-                                    onDrop={handleDropOnRankedContainer}
-                                    onDragEnter={handleRankedDragEnter}
-                                    onDragLeave={handleRankedDragLeave}
-                                >
-                                    {rankedItems.length === 0 && (
-                                        <div className="ranked-empty-state">
-                                            drop bands here to boot up your list.
-                                        </div>
-                                    )}
-
-                                    {rankedItems.map((item, index) => (
-                                        <div
-                                            key={item}
-                                            className="ranked-item"
-                                            draggable
-                                            onDragStart={(e) => handleDragStartRanked(e, index)}
-                                            onDragOver={handleDragOver}
-                                            onDrop={(e) => handleDropOnRankedItem(e, index)}
-                                        >
-                                            <span>
-                                                <span className="rank-number">#{index + 1}</span>
-                                                {item}
-                                            </span>
-                                            <span className="ranked-badge"></span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-
-        /* -----------------------------
-           ROUTER WRAPPER
-           KEY CHANGE: basename="/listr"
-        ------------------------------ */
-        function App() {
-            return (
-                <BrowserRouter basename="/listr">
-                    <Switch>
-                        <Route exact path="/" component={RankingApp} />
-                        <Route path="/test" component={RouterTest} />
-                    </Switch>
-                </BrowserRouter>
-            );
-        }
-
-        ReactDOM.render(<App />, document.getElementById("root"));
-    </script>
+                <a class="button" href="/listr">
+                    Enter Listr
+                </a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
