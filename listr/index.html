@@ -33,9 +33,7 @@
         }
         #root { width: 95%; max-width: 1200px; }
 
-        .app-shell {
-            width: 100%;
-        }
+        .app-shell { width: 100%; }
         .app-shell-inner {
             border-radius: 18px;
             padding: 24px 24px 28px;
@@ -155,18 +153,22 @@
             color: #94a3b8;
         }
 
-        /* Home screen styles */
-        .home-body {
+        /* Home / create screen styles */
+        .home-body,
+        .create-body {
             padding: 24px 10px 4px;
         }
-        .home-heading {
+        .home-heading,
+        .create-heading {
             font-size: 20px;
             margin-bottom: 8px;
         }
-        .home-subtitle {
+        .home-subtitle,
+        .create-subtitle {
             font-size: 13px;
             color: #9ca3af;
             margin-bottom: 18px;
+            max-width: 520px;
         }
         .primary-button {
             margin-top: 8px;
@@ -192,6 +194,50 @@
         .primary-button span {
             margin-left: 6px;
             font-size: 16px;
+        }
+
+        .field-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #9ca3af;
+            margin-bottom: 6px;
+        }
+        .textarea {
+            width: 100%;
+            min-height: 180px;
+            border-radius: 12px;
+            padding: 10px 11px;
+            background: rgba(15,23,42,0.9);
+            border: 1px solid rgba(55,65,81,0.9);
+            color: #e5e7eb;
+            font-family: inherit;
+            font-size: 13px;
+            resize: vertical;
+        }
+        .textarea::placeholder {
+            color: #4b5563;
+        }
+        .create-actions {
+            margin-top: 14px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .secondary-link {
+            font-size: 11px;
+            color: #9ca3af;
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+        }
+
+        @media (max-width: 820px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -245,37 +291,90 @@
         }
 
         /* -----------------------------
-           ROUTER TEST (optional)
+           CREATE LIST SCREEN (/create)
+           User types items (one per line)
         ------------------------------ */
-        function RouterTest() {
+        function CreateListScreen({ setListItems }) {
             const history = useHistory();
+            const [rawText, setRawText] = useState("");
+
+            const handleStartRanking = () => {
+                const lines = rawText
+                    .split("\n")
+                    .map(line => line.trim())
+                    .filter(Boolean);
+
+                if (!lines.length) {
+                    alert("Give me at least one item, king.");
+                    return;
+                }
+
+                setListItems(lines);
+                console.log("User list:", lines);
+
+                history.push("/rank");
+            };
+
+            const handleClear = () => {
+                setRawText("");
+            };
+
             return (
-                <div style={{ padding: 20 }}>
-                    <h1>Router Test Page</h1>
-                    <button onClick={() => history.push("/")}>
-                        Go Home
-                    </button>
+                <div className="app-shell">
+                    <div className="app-shell-inner">
+                        <div className="app-header">
+                            <div className="app-title">Listr · Define your list</div>
+                            <div className="app-pill">INPUT STAGE · v0.1</div>
+                        </div>
+
+                        <div className="create-body">
+                            <div className="create-heading">What are we ranking?</div>
+                            <div className="create-subtitle">
+                                Add one item per line — bands, movies, baby names, restaurants, whatever
+                                your brain is currently spiralling about.
+                            </div>
+
+                            <div className="field-label">Items (one per line)</div>
+                            <textarea
+                                className="textarea"
+                                value={rawText}
+                                onChange={e => setRawText(e.target.value)}
+                                placeholder={
+`Example:
+American Analog Set
+Tortoise
+The Cranberries
+Hum
+Rilo Kiley
+...`
+                                }
+                            />
+
+                            <div className="create-actions">
+                                <button className="primary-button" onClick={handleStartRanking}>
+                                    START RANKING
+                                    <span>▶</span>
+                                </button>
+
+                                <div className="secondary-link" onClick={handleClear}>
+                                    clear all
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             );
         }
 
         /* -----------------------------
-           YOUR RANKING APP (/listr/create)
+           RANKING APP (/rank)
+           Uses whatever items the user entered
         ------------------------------ */
-        function RankingApp() {
-            const [items, setItems] = useState([
-                "American Analog Set",
-                "Tortoise",
-                "The Cranberries",
-                "Hum",
-                "Rilo Kiley",
-                "Radiohead",
-                "Sufjan Stevens",
-                "Beach House",
-                "The Shins",
-                "Modest Mouse"
-            ]);
+        function RankingApp({ initialItems }) {
+            const history = useHistory();
 
+            const seed = initialItems && initialItems.length ? initialItems : [];
+            const [items, setItems] = useState(seed);
             const [rankedItems, setRankedItems] = useState([]);
             const [isDroppingOnRanked, setIsDroppingOnRanked] = useState(false);
 
@@ -336,7 +435,7 @@
                     if (!Number.isNaN(sourceIndex) && sourceIndex >= 0 && sourceIndex < rankedItems.length) {
                         if (sourceIndex === targetIndex) return;
                         const updated = [...rankedItems];
-                            const [moved] = updated.splice(sourceIndex, 1);
+                        const [moved] = updated.splice(sourceIndex, 1);
                         const adjustedTarget = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
                         updated.splice(adjustedTarget, 0, moved);
                         setRankedItems(updated);
@@ -353,25 +452,41 @@
                 setIsDroppingOnRanked(false);
             };
 
+            const handleBackToEdit = () => {
+                history.push("/create");
+            };
+
+            // If somehow we land on /rank without items, bounce back
+            if (!seed.length) {
+                history.replace("/create");
+                return null;
+            }
+
             return (
                 <div className="app-shell">
                     <div className="app-shell-inner">
                         <div className="app-header">
-                            <div className="app-title">Band Tier Console</div>
-                            <div className="app-pill">NEON STACK · v0.1</div>
+                            <div className="app-title">Listr · Ranking console</div>
+                            <div className="app-pill">RANKING STAGE · v0.1</div>
                         </div>
 
                         <div className="container">
                             <div className="panel">
                                 <div className="panel-header">
                                     <div>
-                                        <div className="panel-title">Available Bands</div>
+                                        <div className="panel-title">Available Items</div>
                                         <div className="panel-subtitle">Drag into your ranking grid →</div>
+                                    </div>
+                                    <div
+                                        className="secondary-link"
+                                        onClick={handleBackToEdit}
+                                    >
+                                        edit list
                                     </div>
                                 </div>
 
                                 <div className="list-body">
-                                    <div className="hint">click + drag any name into the right-hand stack</div>
+                                    <div className="hint">click + drag any item into the right-hand stack</div>
 
                                     {items.map(item => (
                                         <div
@@ -387,7 +502,7 @@
 
                                     {items.length === 0 && (
                                         <div className="ranked-empty-state">
-                                            all bands drafted. adjust the order on the right.
+                                            all items drafted. adjust the order on the right.
                                         </div>
                                     )}
                                 </div>
@@ -410,7 +525,7 @@
                                 >
                                     {rankedItems.length === 0 && (
                                         <div className="ranked-empty-state">
-                                            drop bands here to boot up your list.
+                                            drop items here to boot up your list.
                                         </div>
                                     )}
 
@@ -440,15 +555,27 @@
 
         /* -----------------------------
            ROUTER WRAPPER
-           basename="/listr" is key
+           Top-level state stores user list
         ------------------------------ */
         function App() {
+            const [listItems, setListItems] = useState([]);
+
             return (
                 <BrowserRouter basename="/listr">
                     <Switch>
                         <Route exact path="/" component={HomeScreen} />
-                        <Route path="/create" component={RankingApp} />
-                        <Route path="/test" component={RouterTest} />
+                        <Route
+                            path="/create"
+                            render={() => (
+                                <CreateListScreen setListItems={setListItems} />
+                            )}
+                        />
+                        <Route
+                            path="/rank"
+                            render={() => (
+                                <RankingApp initialItems={listItems} />
+                            )}
+                        />
                     </Switch>
                 </BrowserRouter>
             );
