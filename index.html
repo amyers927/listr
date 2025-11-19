@@ -9,10 +9,10 @@
     <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
 
-    <!-- React Router DOM MUST load BEFORE Babel -->
-    <script src="https://unpkg.com/react-router-dom@6/umd/react-router-dom.development.js"></script>
+    <!-- React Router DOM (module to force early load + prevent Cloudflare reordering) -->
+    <script type="module" src="https://unpkg.com/react-router-dom@6/umd/react-router-dom.development.js"></script>
 
-    <!-- Babel (last) -->
+    <!-- Babel (must be last BEFORE your code) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
@@ -39,12 +39,12 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { BrowserRouter, Routes, Route, useNavigate } = ReactRouterDOM;
+        const { BrowserRouter, Routes, Route, useNavigate } = window.ReactRouterDOM;
         const { useState } = React;
 
         /* -----------------------------
            TEST ROUTER COMPONENT
-        ------------------------------*/
+        ------------------------------ */
         function RouterTest() {
             const navigate = useNavigate();
             return (
@@ -59,7 +59,7 @@
 
         /* -----------------------------
            YOUR ORIGINAL APP
-        ------------------------------*/
+        ------------------------------ */
         function RankingApp() {
             const [items, setItems] = useState([
                 "American Analog Set",
@@ -238,7 +238,7 @@
 
         /* -----------------------------
            ROUTER WRAPPER
-        ------------------------------*/
+        ------------------------------ */
         function App() {
             return (
                 <BrowserRouter>
