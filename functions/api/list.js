@@ -1,5 +1,4 @@
 function generateId() {
-    // Simple unique ID for now
     return Math.random().toString(36).slice(2, 10);
 }
 
@@ -9,27 +8,25 @@ export async function onRequestPost(context) {
 
         if (!body || !Array.isArray(body.items)) {
             return new Response(
-                JSON.stringify({ error: "Missing 'items' array in request body" }),
+                JSON.stringify({ error: "Missing 'items' array" }),
                 { status: 400, headers: { "Content-Type": "application/json" } }
             );
         }
 
-        const listId = generateId();
-
-        // Log the creation (later we can store in KV or DB)
-        console.log("Created Listr list:", {
-            id: listId,
+        const id = generateId();
+        const record = {
+            id,
             items: body.items,
-            userAgent: body.userAgent,
-            timestamp: body.timestamp,
-        });
+            createdAt: Date.now(),
+        };
 
-        // Respond with the new ID + items
+        // 🧠 Save to KV
+        await context.env.ListrKV.put(id, JSON.stringify(record));
+
+        console.log("Saved list to KV:", id);
+
         return new Response(
-            JSON.stringify({
-                id: listId,
-                items: body.items,
-            }),
+            JSON.stringify({ id, items: body.items }),
             { headers: { "Content-Type": "application/json" } }
         );
 
