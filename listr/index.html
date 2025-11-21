@@ -538,28 +538,31 @@ function RankingScreen() {
 function App() {
     return (
         <BrowserRouter basename="/listr">
-    <Switch>
-        <Route exact path="/" component={HomeScreen} />
+  <Switch>
 
-        {/* IMPORTANT: must use render() so we can pass props */}
-        <Route
-            path="/create"
-            render={() => <CreateListScreen setListItems={setListItems} />}
-        />
+    <Route exact path="/" component={HomeScreen} />
 
-        {/* New backend-driven ranking */}
-        <Route
-            path="/list/:listId/rank"
-            render={() => <RankingApp />}
-        />
+    {/* ONLY place where setListItems is passed */}
+    <Route
+      path="/create"
+      render={() => <CreateListScreen setListItems={setListItems} />}
+    />
 
-        {/* Fallback (local only) */}
-        <Route
-            path="/rank"
-            render={() => <RankingApp initialItems={listItems} />}
-        />
-    </Switch>
+    {/* Dynamic backend-powered ranking */}
+    <Route
+      path="/list/:listId/rank"
+      render={() => <RankingApp />}
+    />
+
+    {/* Fallback local ranking (no backend) */}
+    <Route
+      path="/rank"
+      render={() => <RankingApp initialItems={listItems} />}
+    />
+
+  </Switch>
 </BrowserRouter>
+
 
     );
 }
