@@ -2,8 +2,8 @@ export async function onRequestGet(context) {
     try {
         const { id } = context.params;
 
-        // Retrieve from KV
-        const stored = await context.env.ListrKV.get(id);
+        // ⭐ Correct binding name again:
+        const stored = await context.env.LISTR.get(id);
 
         if (!stored) {
             return new Response(
