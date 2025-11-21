@@ -102,94 +102,102 @@
             );
         }
 
-        /* -----------------------------------
-           CREATE LIST SCREEN (/create)
-        ----------------------------------- */
-        function CreateListScreen({ setListItems }) {
-            const history = useHistory();
-            const [rawText, setRawText] = useState("");
+/* -----------------------------------
+   CREATE LIST SCREEN (/create)
+----------------------------------- */
+function CreateListScreen({ setListItems }) {
+    const history = useHistory();
+    const [rawText, setRawText] = useState("");
 
-            /* ✅ UPDATED handleStartRanking with POST logging */
-            const handleStartRanking = async () => {
-                const lines = rawText
-                    .split("\n")
-                    .map(line => line.trim())
-                    .filter(Boolean);
+    /* UPDATED handleStartRanking to use the backend ID */
+    const handleStartRanking = async () => {
+        const lines = rawText
+            .split("\n")
+            .map(line => line.trim())
+            .filter(Boolean);
 
-                if (!lines.length) {
-                    alert("Give me at least one item, king.");
-                    return;
-                }
+        if (!lines.length) {
+            alert("Give me at least one item, king.");
+            return;
+        }
 
-                // Save locally
-                setListItems(lines);
+        // Save locally for now (we’ll fetch from backend later)
+        setListItems(lines);
 
-                // Send to backend
-                try {
-                    const res = await fetch("/api/list", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            items: lines,
-                            timestamp: Date.now(),
-                            userAgent: navigator.userAgent
-                        })
-                    });
-                    const data = await res.json();
-                    console.log("Server response:", data);
-                } catch (err) {
-                    console.error("Logging error:", err);
-                }
+        try {
+            const res = await fetch("/api/list", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    items: lines,
+                    timestamp: Date.now(),
+                    userAgent: navigator.userAgent
+                })
+            });
 
-                // Move to ranking screen
+            const data = await res.json();
+            console.log("Server response:", data);
+
+            // ⭐ NEW: redirect to unique list rank page
+            if (data?.id) {
+                history.push(`/list/${data.id}/rank`);
+            } else {
+                console.warn("No id returned — falling back to /rank");
                 history.push("/rank");
-            };
+            }
 
-            const handleClear = () => setRawText("");
+        } catch (err) {
+            console.error("Logging error:", err);
+            history.push("/rank"); // fallback
+        }
+    };
 
-            return (
-                <div className="app-shell">
-                    <div className="app-shell-inner">
-                        <div className="app-header">
-                            <div className="app-title">Listr · Define your list</div>
-                            <div className="app-pill">INPUT STAGE · v0.1</div>
-                        </div>
+    const handleClear = () => setRawText("");
 
-                        <div className="create-body">
-                            <div className="create-heading">What are we ranking?</div>
-                            <div className="create-subtitle">
-                                Add one item per line — bands, movies, baby names, restaurants, whatever
-                                your brain is currently spiralling about.
-                            </div>
+    return (
+        <div className="app-shell">
+            <div className="app-shell-inner">
+                <div className="app-header">
+                    <div className="app-title">Listr · Define your list</div>
+                    <div className="app-pill">INPUT STAGE · v0.1</div>
+                </div>
 
-                            <div className="field-label">Items (one per line)</div>
-                            <textarea
-                                className="textarea"
-                                value={rawText}
-                                onChange={e => setRawText(e.target.value)}
-                                placeholder={`Example:
+                <div className="create-body">
+                    <div className="create-heading">What are we ranking?</div>
+                    <div className="create-subtitle">
+                        Add one item per line — bands, movies, baby names, restaurants,
+                        whatever your brain is currently spiralling about.
+                    </div>
+
+                    <div className="field-label">Items (one per line)</div>
+                    <textarea
+                        className="textarea"
+                        value={rawText}
+                        onChange={e => setRawText(e.target.value)}
+                        placeholder={`Example:
 American Analog Set
 Tortoise
 The Cranberries
 Hum
 Rilo Kiley
 ...`}
-                            />
+                    />
 
-                            <div className="create-actions">
-                                <button className="primary-button" onClick={handleStartRanking}>
-                                    START RANKING <span>▶</span>
-                                </button>
+                    <div className="create-actions">
+                        <button className="primary-button" onClick={handleStartRanking}>
+                            START RANKING <span>▶</span>
+                        </button>
 
-                                <div className="secondary-link" onClick={handleClear}>
-                                    clear all
-                                </div>
-                            </div>
+                        <div className="secondary-link" onClick={handleClear}>
+                            clear all
                         </div>
                     </div>
                 </div>
-            );
-        }
+            </div>
+        </div>
+    );
+}
+
 
         /* -----------------------------------
            RANKING APP (/rank)
