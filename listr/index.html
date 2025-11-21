@@ -181,11 +181,19 @@ function CreateListScreen() {
                     </div>
 
                     <div className="field-label">Items</div>
-                    <textarea
-                        className="textarea"
-                        value={rawText}
-                        onChange={e => setRawText(e.target.value)}
-                    />
+                   <textarea
+    className="textarea"
+    value={rawText}
+    onChange={e => setRawText(e.target.value)}
+    placeholder={`Example:
+American Analog Set
+Tortoise
+The Cranberries
+Hum
+Rilo Kiley
+...`}
+/>
+
 
                     <button className="primary-button" onClick={handleStartSaving}>
                         START RANKING <span>▶</span>
