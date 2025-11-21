@@ -5,28 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Listr · Interactive Ranking</title>
 
-    <!-- React + ReactDOM -->
+    <!-- React -->
     <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
 
     <!-- React Router DOM v5 -->
     <script src="https://unpkg.com/react-router-dom@5/umd/react-router-dom.min.js"></script>
 
-    <!-- Babel (so we can write JSX inline) -->
+    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
         * { box-sizing: border-box; }
         body {
-            margin:0;
-            padding:0;
-            min-height:100vh;
-            display:flex;
-            justify-content:center;
-            align-items:center;
+            margin:0; padding:0; min-height:100vh;
+            display:flex; justify-content:center; align-items:center;
             background:
-                radial-gradient(circle at 10% 0%, rgba(255, 0, 128, 0.25) 0, transparent 55%),
-                radial-gradient(circle at 90% 100%, rgba(0, 255, 255, 0.18) 0, transparent 50%),
+                radial-gradient(circle at 10% 0%, rgba(255,0,128,0.25) 0, transparent 55%),
+                radial-gradient(circle at 90% 100%, rgba(0,255,255,0.18) 0, transparent 50%),
                 linear-gradient(135deg, #020617 0%, #050816 50%, #020617 100%);
             color:#e5e7eb;
             font-family:system-ui,-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif;
@@ -46,100 +42,68 @@
         }
 
         .app-header {
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
+            display:flex; justify-content:space-between; align-items:center;
             margin-bottom:20px;
         }
-        .app-title {
-            letter-spacing:0.16em;
-            text-transform:uppercase;
-            font-size:11px;
-            color:#9ca3af;
-        }
+        .app-title { letter-spacing:0.16em; text-transform:uppercase; font-size:11px; color:#9ca3af; }
         .app-pill {
-            font-size:11px;
-            padding:4px 10px;
-            border-radius:999px;
+            font-size:11px; padding:4px 10px; border-radius:999px;
             border:1px solid rgba(148,163,184,0.7);
-            background:rgba(15,23,42,0.85);
-            color:#e5e7eb;
+            background:rgba(15,23,42,0.85); color:#e5e7eb;
         }
 
         .container {
-            display:grid;
-            grid-template-columns:1.1fr 1.1fr;
-            gap:18px;
+            display:grid; grid-template-columns:1.1fr 1.1fr; gap:18px;
+        }
+        @media (max-width:820px) {
+            .container { grid-template-columns:1fr; }
         }
 
         .panel {
             border-radius:14px;
             padding:14px 14px 16px;
-            background:radial-gradient(circle at 0 0, rgba(148,163,184,0.16), transparent 55%),
-                        rgba(15,23,42,0.88);
+            background:radial-gradient(circle at 0 0, rgba(148,163,184,0.16), transparent 55%), rgba(15,23,42,0.88);
             border:1px solid rgba(75,85,99,0.9);
         }
-        .panel-header {
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:10px;
-        }
+        .panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
         .panel-title { font-size:12px; text-transform:uppercase; letter-spacing:0.16em; color:#9ca3af; }
         .panel-subtitle { font-size:11px; color:#6b7280; }
 
         .list-body {
-            border-radius:10px;
-            padding:10px;
+            border-radius:10px; padding:10px;
             background:radial-gradient(circle at 0 0, rgba(15,23,42,1), rgba(15,23,42,0.8));
             border:1px solid rgba(55,65,81,0.9);
-            max-height:420px;
-            overflow-y:auto;
+            max-height:420px; overflow-y:auto;
         }
-
-        .hint { font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:#6b7280; margin-bottom:7px; }
+        .hint { font-size:10px; color:#6b7280; margin-bottom:7px; letter-spacing:0.12em; text-transform:uppercase; }
 
         .item, .ranked-item {
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            border-radius:9px;
-            padding:7px 9px;
-            margin-bottom:6px;
-            font-size:13px;
+            display:flex; justify-content:space-between; align-items:center;
             background:linear-gradient(135deg, rgba(15,23,42,0.8), rgba(17,24,39,0.9));
             border:1px solid rgba(75,85,99,0.9);
-            cursor:grab;
+            border-radius:9px;
+            padding:7px 9px; margin-bottom:6px;
+            font-size:13px; cursor:grab;
         }
 
         .ranked-badge {
-            width:6px;
-            height:6px;
-            border-radius:999px;
+            width:6px; height:6px; border-radius:999px;
             border:1px solid rgba(148,163,184,0.8);
         }
 
         .ranked-list {
-            border-radius:10px;
-            padding:10px;
+            border-radius:10px; padding:10px;
             background:radial-gradient(circle at 100% 0, rgba(15,23,42,0.95), rgba(15,23,42,0.8));
             border:1px solid rgba(55,65,81,0.9);
-            min-height:120px;
-            max-height:420px;
+            min-height:120px; max-height:420px;
             overflow-y:auto;
-            transition:border-color 120ms ease, box-shadow 120ms ease;
         }
         .ranked-list.is-dropping {
             border-color:rgba(94,234,212,0.9);
             box-shadow:0 0 0 1px rgba(45,212,191,0.4);
         }
 
-        .ranked-empty-state {
-            font-size:12px;
-            color:#6b7280;
-            font-style:italic;
-        }
-
+        .ranked-empty-state { font-size:12px; color:#6b7280; font-style:italic; }
         .rank-number { font-size:11px; margin-right:6px; color:#94a3b8; }
 
         .home-body, .create-body { padding:24px 10px 4px; }
@@ -147,48 +111,30 @@
         .home-subtitle, .create-subtitle { font-size:13px; color:#9ca3af; margin-bottom:18px; max-width:520px; }
 
         .primary-button {
-            margin-top:8px;
-            display:inline-flex;
-            align-items:center;
-            justify-content:center;
-            padding:10px 18px;
-            font-size:13px;
+            margin-top:8px; display:inline-flex; justify-content:center; align-items:center;
+            padding:10px 18px; font-size:13px;
             border-radius:999px;
             background:linear-gradient(135deg, rgba(236,72,153,0.1), rgba(52,211,153,0.06));
             border:1px solid rgba(236,72,153,0.7);
-            color:#e5e7eb;
-            letter-spacing:0.12em;
-            text-transform:uppercase;
-            cursor:pointer;
-            transition:160ms ease;
+            color:#e5e7eb; letter-spacing:0.12em; text-transform:uppercase;
+            cursor:pointer; transition:160ms ease;
         }
         .primary-button:hover {
-            box-shadow:0 0 16px rgba(236,72,153,0.45);
             transform:translateY(-1px);
+            box-shadow:0 0 16px rgba(236,72,153,0.45);
         }
-        .primary-button span { margin-left:6px; font-size:16px; }
 
-        .field-label { font-size:11px; text-transform:uppercase; letter-spacing:0.14em; color:#9ca3af; margin-bottom:6px; }
+        .secondary-link {
+            font-size:11px; color:#9ca3af;
+            cursor:pointer; text-decoration:underline;
+            text-decoration-style:dotted;
+        }
 
         .textarea {
-            width:100%;
-            min-height:180px;
-            border-radius:12px;
-            padding:10px 11px;
-            background:rgba(15,23,42,0.9);
-            border:1px solid rgba(55,65,81,0.9);
-            color:#e5e7eb;
-            font-family:inherit;
-            font-size:13px;
-            resize:vertical;
-        }
-        .textarea::placeholder { color:#4b5563; }
-
-        .create-actions { margin-top:14px; display:flex; gap:12px; flex-wrap:wrap; }
-        .secondary-link { font-size:11px; color:#9ca3af; cursor:pointer; text-decoration:underline; text-decoration-style:dotted; }
-
-        @media (max-width:820px) {
-            .container { grid-template-columns:1fr; }
+            width:100%; min-height:180px;
+            border-radius:12px; padding:10px 11px;
+            background:rgba(15,23,42,0.9); border:1px solid rgba(55,65,81,0.9);
+            color:#e5e7eb; font-size:13px; resize:vertical;
         }
     </style>
 </head>
@@ -198,13 +144,13 @@
 
 <script type="text/babel">
 
-/* React + Router */
 const { BrowserRouter, Switch, Route, useHistory, useParams } = window.ReactRouterDOM;
 const { useState, useEffect } = React;
 
-/* ---------------------------------------------------
+
+/* ================================
    HOME SCREEN
---------------------------------------------------- */
+================================ */
 function HomeScreen() {
     const history = useHistory();
     return (
@@ -218,10 +164,13 @@ function HomeScreen() {
                 <div className="home-body">
                     <div className="home-heading">Create a list</div>
                     <div className="home-subtitle">
-                        Spin up a ranking grid, drag items into place, and obsess over the order like a reasonable person.
+                        Spin up a ranking grid and obsess like a reasonable person.
                     </div>
 
-                    <button className="primary-button" onClick={() => history.push("/create")}>
+                    <button
+                        className="primary-button"
+                        onClick={() => history.push("/create")}
+                    >
                         CREATE A LIST <span>↗</span>
                     </button>
                 </div>
@@ -230,45 +179,39 @@ function HomeScreen() {
     );
 }
 
-/* ---------------------------------------------------
-   CREATE SCREEN
---------------------------------------------------- */
-function CreateScreen({ setListItems }) {
+
+/* ================================
+   CREATE LIST SCREEN
+================================ */
+function CreateListScreen({ setListItems }) {
     const history = useHistory();
     const [rawText, setRawText] = useState("");
 
     const handleStartRanking = async () => {
         const lines = rawText.split("\n").map(x => x.trim()).filter(Boolean);
-
-        if (!lines.length) {
-            alert("Give me at least one item, king.");
-            return;
-        }
+        if (!lines.length) return alert("Give me at least one item, king.");
 
         setListItems(lines);
 
         let id = null;
         try {
             const res = await fetch("/api/list", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({
                     items: lines,
                     timestamp: Date.now(),
-                    userAgent: navigator.userAgent,
+                    userAgent: navigator.userAgent
                 })
             });
             const data = await res.json();
             id = data?.id;
-        } catch (err) {
-            console.error("Logging error:", err);
+        } catch(e) {
+            console.error(e);
         }
 
-        if (id) {
-            history.push(`/list/${id}/rank`);
-        } else {
-            history.push("/rank");
-        }
+        if (id) history.push(`/list/${id}/rank`);
+        else history.push("/rank");
     };
 
     return (
@@ -281,12 +224,6 @@ function CreateScreen({ setListItems }) {
 
                 <div className="create-body">
                     <div className="create-heading">What are we ranking?</div>
-                    <div className="create-subtitle">
-                        Add one item per line — bands, movies, baby names, restaurants,
-                        whatever your brain is currently spiralling about.
-                    </div>
-
-                    <div className="field-label">Items (one per line)</div>
 
                     <textarea
                         className="textarea"
@@ -297,18 +234,13 @@ American Analog Set
 Tortoise
 The Cranberries
 Hum
-Rilo Kiley
-...`}
+Rilo Kiley`}
                     />
 
                     <div className="create-actions">
                         <button className="primary-button" onClick={handleStartRanking}>
-                            START RANKING <span>▶</span>
+                            START RANKING ▶
                         </button>
-
-                        <div className="secondary-link" onClick={() => setRawText("")}>
-                            clear all
-                        </div>
                     </div>
                 </div>
             </div>
@@ -316,88 +248,83 @@ Rilo Kiley
     );
 }
 
-/* ---------------------------------------------------
-   BACKEND-POWERED RANKING SCREEN
---------------------------------------------------- */
+
+/* ================================
+   DYNAMIC RANKING SCREEN
+================================ */
 function RankingScreen() {
     const { listId } = useParams();
     const history = useHistory();
-
     const [items, setItems] = useState([]);
     const [rankedItems, setRankedItems] = useState([]);
+    const [isDroppingOnRanked, setIsDropping] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        async function load() {
+        (async () => {
             try {
                 const res = await fetch(`/api/list/${listId}`);
                 const data = await res.json();
                 setItems(data.items || []);
-            } catch (e) {
-                console.error("Failed to load list", e);
+            } catch(e) {
+                console.error(e);
             }
             setLoading(false);
-        }
-        load();
+        })();
     }, [listId]);
 
-    /* Drag/drop logic (unchanged, works fine) */
-    const handleDragStartAvailable = (e, item) => {
-        e.dataTransfer.setData("drag-type", "available");
-        e.dataTransfer.setData("item", item);
+    const handleDragStartAvailable = (e,item)=>{
+        e.dataTransfer.setData("drag-type","available");
+        e.dataTransfer.setData("item",item);
     };
-
-    const handleDragStartRanked = (e, index) => {
-        e.dataTransfer.setData("drag-type", "ranked");
-        e.dataTransfer.setData("sourceIndex", String(index));
+    const handleDragStartRanked = (e,i)=>{
+        e.dataTransfer.setData("drag-type","ranked");
+        e.dataTransfer.setData("sourceIndex",String(i));
     };
+    const handleDragOver = e => e.preventDefault();
 
-    const handleDragOver = (e) => e.preventDefault();
-
-    const [isDroppingOnRanked, setIsDroppingOnRanked] = useState(false);
-
-    const handleDropOnRankedContainer = (e) => {
+    const dropContainer = e => {
         e.preventDefault();
-        setIsDroppingOnRanked(false);
-        const dragType = e.dataTransfer.getData("drag-type");
+        setIsDropping(false);
+        const type = e.dataTransfer.getData("drag-type");
 
-        if (dragType === "available") {
+        if (type==="available") {
             const item = e.dataTransfer.getData("item");
             if (item && !rankedItems.includes(item)) {
                 setRankedItems([...rankedItems, item]);
-                setItems(items.filter(i => i !== item));
+                setItems(items.filter(i=>i!==item));
             }
-        } else if (dragType === "ranked") {
-            const sourceIndex = parseInt(e.dataTransfer.getData("sourceIndex"), 10);
-            const updated = [...rankedItems];
-            const [moved] = updated.splice(sourceIndex, 1);
-            updated.push(moved);
-            setRankedItems(updated);
+        } else {
+            const i = parseInt(e.dataTransfer.getData("sourceIndex"),10);
+            if (!isNaN(i)) {
+                const arr = [...rankedItems];
+                const [moved] = arr.splice(i,1);
+                arr.push(moved);
+                setRankedItems(arr);
+            }
         }
     };
 
-    const handleDropOnRankedItem = (e, targetIndex) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDroppingOnRanked(false);
+    const dropItem = (e,target)=>{
+        e.preventDefault(); e.stopPropagation(); setIsDropping(false);
+        const type = e.dataTransfer.getData("drag-type");
 
-        const dragType = e.dataTransfer.getData("drag-type");
-
-        if (dragType === "available") {
+        if (type==="available") {
             const item = e.dataTransfer.getData("item");
-            if (item && !rankedItems.includes(item)) {
-                const updated = [...rankedItems];
-                updated.splice(targetIndex, 0, item);
-                setRankedItems(updated);
-                setItems(items.filter(i => i !== item));
+            if (!rankedItems.includes(item)) {
+                const arr=[...rankedItems];
+                arr.splice(target,0,item);
+                setRankedItems(arr);
+                setItems(items.filter(i=>i!==item));
             }
         } else {
-            const sourceIndex = parseInt(e.dataTransfer.getData("sourceIndex"), 10);
-            const updated = [...rankedItems];
-            const [moved] = updated.splice(sourceIndex, 1);
-            const adjusted = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
-            updated.splice(adjusted, 0, moved);
-            setRankedItems(updated);
+            const src = parseInt(e.dataTransfer.getData("sourceIndex"),10);
+            if (src===target) return;
+            const arr=[...rankedItems];
+            const [moved]=arr.splice(src,1);
+            const idx = src<target ? target-1 : target;
+            arr.splice(idx,0,moved);
+            setRankedItems(arr);
         }
     };
 
@@ -415,77 +342,53 @@ function RankingScreen() {
         <div className="app-shell">
             <div className="app-shell-inner">
                 <div className="app-header">
-                    <div className="app-title">Listr · Ranking</div>
+                    <div className="app-title">Listr · Ranking Console</div>
                     <div className="app-pill">LIST #{listId}</div>
                 </div>
 
                 <div className="container">
-                    {/* Available Items */}
                     <div className="panel">
                         <div className="panel-header">
                             <div>
-                                <div className="panel-title">Available Items</div>
+                                <div className="panel-title">Available</div>
                                 <div className="panel-subtitle">Drag →</div>
-                            </div>
-                            <div className="secondary-link" onClick={() => history.push("/create")}>
-                                new list
                             </div>
                         </div>
 
                         <div className="list-body">
-                            <div className="hint">drag items to the right</div>
-
-                            {items.map(item => (
-                                <div
-                                    key={item}
-                                    className="item"
-                                    draggable
-                                    onDragStart={(e) => handleDragStartAvailable(e, item)}
-                                >
+                            {items.map((item,i)=>(
+                                <div key={item + "-" + i}
+                                     className="item"
+                                     draggable
+                                     onDragStart={e=>handleDragStartAvailable(e,item)}>
                                     <span>{item}</span>
                                     <span className="ranked-badge"></span>
                                 </div>
                             ))}
-
-                            {items.length === 0 && (
-                                <div className="ranked-empty-state">
-                                    all items drafted →
-                                </div>
-                            )}
                         </div>
                     </div>
 
-                    {/* Ranked Items */}
                     <div className="panel">
                         <div className="panel-header">
-                            <div>
-                                <div className="panel-title">Ranking Stack</div>
-                                <div className="panel-subtitle">Reorder</div>
-                            </div>
+                            <div className="panel-title">Ranking</div>
                         </div>
 
                         <div
-                            className={"ranked-list" + (isDroppingOnRanked ? " is-dropping" : "")}
+                            className={"ranked-list"+(isDroppingOnRanked?" is-dropping":"")}
                             onDragOver={handleDragOver}
-                            onDrop={handleDropOnRankedContainer}
-                            onDragEnter={() => setIsDroppingOnRanked(true)}
-                            onDragLeave={() => setIsDroppingOnRanked(false)}
+                            onDrop={dropContainer}
+                            onDragEnter={()=>setIsDropping(true)}
+                            onDragLeave={()=>setIsDropping(false)}
                         >
-                            {rankedItems.length === 0 && (
-                                <div className="ranked-empty-state">drop items here</div>
-                            )}
-
-                            {rankedItems.map((item, index) => (
-                                <div
-                                    key={item}
-                                    className="ranked-item"
-                                    draggable
-                                    onDragStart={(e) => handleDragStartRanked(e, index)}
-                                    onDragOver={handleDragOver}
-                                    onDrop={(e) => handleDropOnRankedItem(e, index)}
-                                >
+                            {rankedItems.map((item,i)=>(
+                                <div key={item + "-" + i}
+                                     className="ranked-item"
+                                     draggable
+                                     onDragStart={e=>handleDragStartRanked(e,i)}
+                                     onDragOver={handleDragOver}
+                                     onDrop={e=>dropItem(e,i)}>
                                     <span>
-                                        <span className="rank-number">#{index + 1}</span>
+                                        <span className="rank-number">#{i+1}</span>
                                         {item}
                                     </span>
                                     <span className="ranked-badge"></span>
@@ -493,36 +396,19 @@ function RankingScreen() {
                             ))}
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
     );
 }
 
-/* ---------------------------------------------------
-   LOCAL FALLBACK RANKING
---------------------------------------------------- */
-function RankingLocal({ initialItems }) {
-    if (!initialItems || !initialItems.length) {
-        return (
-            <div className="app-shell">
-                <div className="app-shell-inner">
-                    <div className="home-heading">No items — go create a list</div>
-                </div>
-            </div>
-        );
-    }
 
-    return (
-        <RankingScreen initialItems={initialItems} />
-    );
-}
-
-/* ---------------------------------------------------
-   APP ROUTER
---------------------------------------------------- */
+/* ================================
+   ROUTER
+================================ */
 function App() {
-    const [listItems, setListItems] = useState([]);
+    const [listItems, setListItems] = React.useState([]);
 
     return (
         <BrowserRouter basename="/listr">
@@ -530,20 +416,14 @@ function App() {
 
                 <Route exact path="/" component={HomeScreen} />
 
-                <Route
-                    path="/create"
-                    render={() => <CreateScreen setListItems={setListItems} />}
-                />
+                <Route path="/create"
+                       render={()=><CreateListScreen setListItems={setListItems} />} />
 
-                <Route
-                    path="/list/:listId/rank"
-                    component={RankingScreen}
-                />
+                <Route path="/list/:listId/rank"
+                       component={RankingScreen} />
 
-                <Route
-                    path="/rank"
-                    render={() => <RankingLocal initialItems={listItems} />}
-                />
+                <Route path="/rank"
+                       render={()=><RankingScreen initialItems={listItems} />} />
 
             </Switch>
         </BrowserRouter>
