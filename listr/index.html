@@ -538,13 +538,29 @@ function RankingScreen() {
 function App() {
     return (
         <BrowserRouter basename="/listr">
-            <Switch>
-                <Route exact path="/" component={HomeScreen} />
-                <Route path="/create" component={CreateListScreen} />
-                <Route path="/list/:listId/rank" component={RankingScreen} />
-                <Route render={() => <HomeScreen />} />
-            </Switch>
-        </BrowserRouter>
+    <Switch>
+        <Route exact path="/" component={HomeScreen} />
+
+        {/* IMPORTANT: must use render() so we can pass props */}
+        <Route
+            path="/create"
+            render={() => <CreateListScreen setListItems={setListItems} />}
+        />
+
+        {/* New backend-driven ranking */}
+        <Route
+            path="/list/:listId/rank"
+            render={() => <RankingApp />}
+        />
+
+        {/* Fallback (local only) */}
+        <Route
+            path="/rank"
+            render={() => <RankingApp initialItems={listItems} />}
+        />
+    </Switch>
+</BrowserRouter>
+
     );
 }
 
