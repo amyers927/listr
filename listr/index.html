@@ -536,32 +536,38 @@ function RankingScreen() {
    ROUTER WRAPPER
 ----------------------------------- */
 function App() {
+    const [listItems, setListItems] = React.useState([]);
+
     return (
         <BrowserRouter basename="/listr">
-  <Switch>
+            <Switch>
 
-    <Route exact path="/" component={HomeScreen} />
+                <Route exact path="/" component={HomeScreen} />
 
-    {/* ONLY place where setListItems is passed */}
-    <Route
-      path="/create"
-      render={() => <CreateListScreen setListItems={setListItems} />}
-    />
+                <Route
+                    path="/create"
+                    render={() => (
+                        <CreateListScreen setListItems={setListItems} />
+                    )}
+                />
 
-    {/* Dynamic backend-powered ranking */}
-    <Route
-      path="/list/:listId/rank"
-      render={() => <RankingApp />}
-    />
+                <Route
+                    path="/list/:listId/rank"
+                    render={() => <RankingApp />}
+                />
 
-    {/* Fallback local ranking (no backend) */}
-    <Route
-      path="/rank"
-      render={() => <RankingApp initialItems={listItems} />}
-    />
+                <Route
+                    path="/rank"
+                    render={() => (
+                        <RankingApp initialItems={listItems} />
+                    )}
+                />
 
-  </Switch>
-</BrowserRouter>
+            </Switch>
+        </BrowserRouter>
+    );
+}
+
 
 
     );
