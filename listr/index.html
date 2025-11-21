@@ -9,101 +9,92 @@
     <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
 
-    <!-- React Router DOM v5 -->
+    <!-- React Router DOM v5 (UMD) -->
     <script src="https://unpkg.com/react-router-dom@5/umd/react-router-dom.min.js"></script>
 
-    <!-- Babel -->
+    <!-- Babel (for in-browser JSX transform) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
         * { box-sizing: border-box; }
         body {
-            margin:0; padding:0; min-height:100vh; display:flex; justify-content:center; align-items:center;
+            margin: 0; padding: 0; min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
             background:
-                radial-gradient(circle at 10% 0%, rgba(255, 0, 128, 0.25) 0, transparent 55%),
-                radial-gradient(circle at 90% 100%, rgba(0, 255, 255, 0.18) 0, transparent 50%),
+                radial-gradient(circle at 10% 0%, rgba(255,0,128,0.25) 0, transparent 55%),
+                radial-gradient(circle at 90% 100%, rgba(0,255,255,0.18) 0, transparent 50%),
                 linear-gradient(135deg, #020617 0%, #050816 50%, #020617 100%);
-            color:#e5e7eb; font-family:system-ui,-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif;
+            color: #e5e7eb;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif;
         }
-        #root { width:95%; max-width:1200px; }
+        #root { width: 95%; max-width: 1200px; }
 
-        .app-shell { width:100%; }
+        .app-shell { width: 100%; }
         .app-shell-inner {
-            border-radius:18px; padding:24px 24px 28px;
-            background:radial-gradient(circle at 0 0, rgba(255,255,255,0.06), transparent 55%),
-                       radial-gradient(circle at 100% 100%, rgba(148,163,184,0.12), transparent 55%),
-                       rgba(15,23,42,0.9);
-            box-shadow:0 22px 60px rgba(0,0,0,0.75);
-            border:1px solid rgba(148,163,184,0.35);
-        }
-        .app-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-        .app-title { letter-spacing:0.16em; text-transform:uppercase; font-size:11px; color:#9ca3af; }
-        .app-pill { font-size:11px; padding:4px 10px; border-radius:999px; border:1px solid rgba(148,163,184,0.7);
-            background:rgba(15,23,42,0.85); color:#e5e7eb; }
-
-        .container { display:grid; grid-template-columns:1.1fr 1.1fr; gap:18px; }
-
-        .panel { border-radius:14px; padding:14px 14px 16px;
-            background:radial-gradient(circle at 0 0, rgba(148,163,184,0.16), transparent 55%),
-                       rgba(15,23,42,0.88);
-            border:1px solid rgba(75,85,99,0.9);
+            border-radius: 18px;
+            padding: 24px 24px 28px;
+            background: radial-gradient(circle at 0 0, rgba(255,255,255,0.06), transparent 55%),
+                        radial-gradient(circle at 100% 100%, rgba(148,163,184,0.12), transparent 55%),
+                        rgba(15,23,42,0.9);
+            box-shadow: 0 22px 60px rgba(0,0,0,0.75);
+            border: 1px solid rgba(148,163,184,0.35);
         }
 
-        .panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-        .panel-title { font-size:12px; text-transform:uppercase; letter-spacing:0.16em; color:#9ca3af; }
-        .panel-subtitle { font-size:11px; color:#6b7280; }
-
-        .list-body { border-radius:10px; padding:10px; background:radial-gradient(circle at 0 0,
-            rgba(15,23,42,1), rgba(15,23,42,0.8));
-            border:1px solid rgba(55,65,81,0.9); max-height:420px; overflow-y:auto;
+        .app-header { display:flex; justify-content:space-between; margin-bottom:20px; }
+        .app-title { text-transform:uppercase; font-size:11px; color:#9ca3af; letter-spacing:0.16em; }
+        .app-pill {
+            font-size:11px; padding:4px 10px; border-radius:999px;
+            border:1px solid rgba(148,163,184,0.7);
+            background:rgba(15,23,42,0.85);
         }
-        .hint { font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:#6b7280; margin-bottom:7px; }
-
-        .item, .ranked-item {
-            display:flex; align-items:center; justify-content:space-between;
-            border-radius:9px; padding:7px 9px; margin-bottom:6px; font-size:13px;
-            background:linear-gradient(135deg, rgba(15,23,42,0.8), rgba(17,24,39,0.9));
-            border:1px solid rgba(75,85,99,0.9); cursor:grab;
-        }
-
-        .ranked-badge { width:6px; height:6px; border-radius:999px; border:1px solid rgba(148,163,184,0.8); }
-
-        .ranked-list {
-            border-radius:10px; padding:10px;
-            background:radial-gradient(circle at 100% 0, rgba(15,23,42,0.95), rgba(15,23,42,0.8));
-            border:1px solid rgba(55,65,81,0.9);
-            min-height:120px; max-height:420px; overflow-y:auto;
-            transition:border-color 120ms ease, box-shadow 120ms ease;
-        }
-        .ranked-list.is-dropping { border-color:rgba(94,234,212,0.9); box-shadow:0 0 0 1px rgba(45,212,191,0.4); }
-
-        .ranked-empty-state { font-size:12px; color:#6b7280; font-style:italic; }
-        .rank-number { font-size:11px; margin-right:6px; color:#94a3b8; }
 
         .home-body, .create-body { padding:24px 10px 4px; }
         .home-heading, .create-heading { font-size:20px; margin-bottom:8px; }
         .home-subtitle, .create-subtitle { font-size:13px; color:#9ca3af; margin-bottom:18px; max-width:520px; }
 
         .primary-button {
-            margin-top:8px; display:inline-flex; align-items:center; justify-content:center; padding:10px 18px;
-            font-size:13px; border-radius:999px;
+            margin-top:8px; display:inline-flex; align-items:center; justify-content:center;
+            padding:10px 18px; font-size:13px; border-radius:999px;
             background:linear-gradient(135deg, rgba(236,72,153,0.1), rgba(52,211,153,0.06));
-            border:1px solid rgba(236,72,153,0.7); color:#e5e7eb; letter-spacing:0.12em; text-transform:uppercase; cursor:pointer;
-            transition:160ms ease;
+            border:1px solid rgba(236,72,153,0.7); color:#e5e7eb;
+            letter-spacing:0.12em; text-transform:uppercase; cursor:pointer;
+            transition: 160ms ease;
         }
         .primary-button:hover { box-shadow:0 0 16px rgba(236,72,153,0.45); transform:translateY(-1px); }
+        .primary-button span { margin-left:6px; font-size:16px; }
 
-        .field-label { font-size:11px; text-transform:uppercase; letter-spacing:0.14em; color:#9ca3af; margin-bottom:6px; }
+        .field-label { text-transform:uppercase; font-size:11px; color:#9ca3af; margin-bottom:6px; letter-spacing:0.14em; }
         .textarea {
             width:100%; min-height:180px; border-radius:12px; padding:10px 11px;
             background:rgba(15,23,42,0.9); border:1px solid rgba(55,65,81,0.9);
             color:#e5e7eb; font-family:inherit; font-size:13px; resize:vertical;
         }
 
-        .create-actions { margin-top:14px; display:flex; gap:12px; flex-wrap:wrap; }
-        .secondary-link { font-size:11px; color:#9ca3af; cursor:pointer; text-decoration:underline; text-decoration-style:dotted; }
+        .container { display:grid; grid-template-columns:1.1fr 1.1fr; gap:18px; }
+        .panel { border-radius:14px; padding:14px; background:rgba(15,23,42,0.88); border:1px solid rgba(75,85,99,0.9); }
+        .panel-title { font-size:12px; text-transform:uppercase; color:#9ca3af; letter-spacing:0.16em; }
 
-        @media (max-width:820px) { .container { grid-template-columns:1fr; } }
+        .list-body, .ranked-list {
+            border-radius:10px; padding:10px;
+            background:rgba(15,23,42,0.9);
+            border:1px solid rgba(55,65,81,0.9);
+            max-height:420px; overflow-y:auto;
+        }
+
+        .item, .ranked-item {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:7px 9px; margin-bottom:6px;
+            border-radius:9px; border:1px solid rgba(75,85,99,0.9);
+            background:linear-gradient(135deg, rgba(15,23,42,0.8), rgba(17,24,39,0.9));
+            cursor:grab;
+        }
+
+        .rank-number { font-size:11px; margin-right:6px; color:#94a3b8; }
+        .ranked-badge { width:6px; height:6px; border-radius:999px; border:1px solid rgba(148,163,184,0.8); }
+
+        @media (max-width:820px) {
+            .container { grid-template-columns:1fr; }
+        }
     </style>
 </head>
 
@@ -111,312 +102,303 @@
 <div id="root"></div>
 
 <script type="text/babel">
-    const { BrowserRouter, Switch, Route, useHistory, useParams } = ReactRouterDOM;
-    const { useState } = React;
+const { BrowserRouter, Route, Switch, useHistory, useParams } = ReactRouterDOM;
+const { useState, useEffect } = React;
 
-    /* HOME SCREEN */
-    function HomeScreen() {
-        const history = useHistory();
-        return (
-            <div className="app-shell">
-                <div className="app-shell-inner">
-                    <div className="app-header">
-                        <div className="app-title">Listr · Al-Beiruti Holdings</div>
-                        <div className="app-pill">LIST ENGINE · v0.1</div>
+/* -----------------------------------
+   HOME SCREEN
+----------------------------------- */
+function HomeScreen() {
+    const history = useHistory();
+    return (
+        <div className="app-shell">
+            <div className="app-shell-inner">
+                <div className="app-header">
+                    <div className="app-title">Listr · Al-Beiruti Holdings</div>
+                    <div className="app-pill">LIST ENGINE · v0.1</div>
+                </div>
+
+                <div className="home-body">
+                    <div className="home-heading">Create a list</div>
+                    <div className="home-subtitle">
+                        Spin up a ranking grid, drag items into place, and obsess over the order like a reasonable person.
                     </div>
 
-                    <div className="home-body">
-                        <div className="home-heading">Create a list</div>
-                        <div className="home-subtitle">
-                            Spin up a ranking grid, drag items into place, and obsess over the order
-                            like a reasonable person.
-                        </div>
-
-                        <button className="primary-button" onClick={() => history.push("/create")}>
-                            CREATE A LIST <span>↗</span>
-                        </button>
-                    </div>
+                    <button className="primary-button" onClick={() => history.push("/create")}>
+                        CREATE A LIST <span>↗</span>
+                    </button>
                 </div>
             </div>
-        );
-    }
+        </div>
+    );
+}
 
-    /* CREATE LIST SCREEN */
-    function CreateListScreen({ setListItems }) {
-        const history = useHistory();
-        const [rawText, setRawText] = useState("");
+/* -----------------------------------
+   CREATE SCREEN
+----------------------------------- */
+function CreateListScreen() {
+    const history = useHistory();
+    const [rawText, setRawText] = useState("");
 
-        const handleStartRanking = async () => {
-            const lines = rawText.split("\n").map(l => l.trim()).filter(Boolean);
-            if (!lines.length) {
-                alert("Give me at least one item, king.");
-                return;
-            }
-
-            setListItems(lines);
-
-            try {
-                const res = await fetch("/api/list", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        items: lines,
-                        timestamp: Date.now(),
-                        userAgent: navigator.userAgent
-                    })
-                });
-
-                const data = await res.json();
-                console.log("Server response:", data);
-
-                if (data?.id) {
-                    history.push(`/list/${data.id}/rank`);
-                } else {
-                    history.push("/rank");
-                }
-
-            } catch (err) {
-                console.error("Logging error:", err);
-                history.push("/rank");
-            }
-        };
-
-        return (
-            <div className="app-shell">
-                <div className="app-shell-inner">
-                    <div className="app-header">
-                        <div className="app-title">Listr · Define your list</div>
-                        <div className="app-pill">INPUT STAGE · v0.1</div>
-                    </div>
-
-                    <div className="create-body">
-                        <div className="create-heading">What are we ranking?</div>
-                        <div className="create-subtitle">
-                            Add one item per line — bands, movies, baby names, restaurants,
-                            whatever your brain is currently spiralling about.
-                        </div>
-
-                        <div className="field-label">Items (one per line)</div>
-                        <textarea
-                            className="textarea"
-                            value={rawText}
-                            onChange={e => setRawText(e.target.value)}
-                            placeholder={`Example:
-American Analog Set
-Tortoise
-The Cranberries
-Hum
-Rilo Kiley
-...`}
-                        />
-
-                        <div className="create-actions">
-                            <button className="primary-button" onClick={handleStartRanking}>
-                                START RANKING <span>▶</span>
-                            </button>
-                            <div className="secondary-link" onClick={() => setRawText("")}>
-                                clear all
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    /* RANKING APP */
-    function RankingApp({ initialItems }) {
-        const history = useHistory();
-        const seed = initialItems && initialItems.length ? initialItems : [];
-
-        const [items, setItems] = useState(seed);
-        const [rankedItems, setRankedItems] = useState([]);
-        const [isDroppingOnRanked, setIsDroppingOnRanked] = useState(false);
-
-        if (!seed.length) {
-            history.replace("/create");
-            return null;
+    const handleStartSaving = async () => {
+        const lines = rawText.split("\n").map(l => l.trim()).filter(Boolean);
+        if (!lines.length) {
+            alert("Give me at least one item, king.");
+            return;
         }
 
-        const handleDragStartAvailable = (e, item) => {
-            e.dataTransfer.setData("drag-type", "available");
-            e.dataTransfer.setData("item", item);
-        };
+        try {
+            const res = await fetch("/api/list", {
+                method: "POST",
+                headers: { "Content-Type":"application/json" },
+                body: JSON.stringify({ items: lines })
+            });
 
-        const handleDragStartRanked = (e, index) => {
-            e.dataTransfer.setData("drag-type", "ranked");
-            e.dataTransfer.setData("sourceIndex", String(index));
-        };
-
-        const handleDragOver = e => e.preventDefault();
-
-        const handleDropOnRankedContainer = e => {
-            e.preventDefault();
-            setIsDroppingOnRanked(false);
-
-            const dragType = e.dataTransfer.getData("drag-type");
-
-            if (dragType === "available") {
-                const item = e.dataTransfer.getData("item");
-                if (item && !rankedItems.includes(item)) {
-                    setRankedItems([...rankedItems, item]);
-                    setItems(items.filter(i => i !== item));
-                }
-            } else if (dragType === "ranked") {
-                const sourceIndex = parseInt(e.dataTransfer.getData("sourceIndex"), 10);
-                const updated = [...rankedItems];
-                const [moved] = updated.splice(sourceIndex, 1);
-                updated.push(moved);
-                setRankedItems(updated);
+            const data = await res.json();
+            if (data.id) {
+                history.push(`/list/${data.id}/rank`);
+            } else {
+                alert("Error: no ID returned.");
             }
-        };
+        } catch(err) {
+            console.error(err);
+            alert("Error saving list.");
+        }
+    };
 
-        const handleDropOnRankedItem = (e, targetIndex) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setIsDroppingOnRanked(false);
+    return (
+        <div className="app-shell">
+            <div className="app-shell-inner">
+                <div className="app-header">
+                    <div className="app-title">Listr · Define your list</div>
+                    <div className="app-pill">INPUT STAGE · v0.1</div>
+                </div>
 
-            const dragType = e.dataTransfer.getData("drag-type");
-
-            if (dragType === "available") {
-                const item = e.dataTransfer.getData("item");
-                if (item && !rankedItems.includes(item)) {
-                    const updated = [...rankedItems];
-                    updated.splice(targetIndex, 0, item);
-                    setRankedItems(updated);
-                    setItems(items.filter(i => i !== item));
-                }
-            } else if (dragType === "ranked") {
-                const sourceIndex = parseInt(e.dataTransfer.getData("sourceIndex"), 10);
-                if (sourceIndex === targetIndex) return;
-
-                const updated = [...rankedItems];
-                const [moved] = updated.splice(sourceIndex, 1);
-                const adjusted = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
-                updated.splice(adjusted, 0, moved);
-                setRankedItems(updated);
-            }
-        };
-
-        return (
-            <div className="app-shell">
-                <div className="app-shell-inner">
-                    <div className="app-header">
-                        <div className="app-title">Listr · Ranking console</div>
-                        <div className="app-pill">RANKING STAGE · v0.1</div>
+                <div className="create-body">
+                    <div className="create-heading">What are we ranking?</div>
+                    <div className="create-subtitle">
+                        Add one item per line — bands, movies, baby names, restaurants, whatever your brain is spiralling about.
                     </div>
 
-                    <div className="container">
-                        {/* LEFT SIDE */}
-                        <div className="panel">
-                            <div className="panel-header">
-                                <div>
-                                    <div className="panel-title">Available Items</div>
-                                    <div className="panel-subtitle">Drag into your ranking grid →</div>
-                                </div>
-                                <div className="secondary-link" onClick={() => history.push("/create")}>
-                                    edit list
-                                </div>
-                            </div>
+                    <div className="field-label">Items</div>
+                    <textarea
+                        className="textarea"
+                        value={rawText}
+                        onChange={e => setRawText(e.target.value)}
+                    />
 
-                            <div className="list-body">
-                                <div className="hint">click + drag any item into the right-hand stack</div>
+                    <button className="primary-button" onClick={handleStartSaving}>
+                        START RANKING <span>▶</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
 
-                                {items.map(item => (
-                                    <div
-                                        key={item}
-                                        className="item"
-                                        draggable
-                                        onDragStart={e => handleDragStartAvailable(e, item)}
-                                    >
-                                        <span>{item}</span>
-                                        <span className="ranked-badge"></span>
-                                    </div>
-                                ))}
+/* -----------------------------------
+   RANKING SCREEN (LOADS FROM BACKEND)
+----------------------------------- */
+function RankingApp() {
+    const history = useHistory();
+    const { listId } = useParams();
 
-                                {items.length === 0 && (
-                                    <div className="ranked-empty-state">
-                                        all items drafted. adjust the order on the right.
-                                    </div>
-                                )}
+    const [loading, setLoading]   = useState(true);
+    const [error, setError]       = useState("");
+    const [items, setItems]       = useState([]);
+    const [rankedItems, setRankedItems] = useState([]);
+    const [isDroppingOnRanked, setIsDroppingOnRanked] = useState(false);
+
+    /* Fetch list from backend */
+    useEffect(() => {
+        async function load() {
+            try {
+                const res = await fetch(`/api/list/${listId}`);
+                if (!res.ok) {
+                    setError("This list does not exist.");
+                    setLoading(false);
+                    return;
+                }
+                const data = await res.json();
+                setItems(data.items || []);
+                setLoading(false);
+            } catch(err) {
+                setError("Failed to load list.");
+                setLoading(false);
+            }
+        }
+        load();
+    }, [listId]);
+
+    if (loading) {
+        return (
+            <div className="app-shell"><div className="app-shell-inner">
+                <div className="home-heading">Loading...</div>
+            </div></div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="app-shell"><div className="app-shell-inner">
+                <div className="home-heading">{error}</div>
+            </div></div>
+        );
+    }
+
+    /* Drag handlers */
+    const handleDragStartAvailable = (e, item) => {
+        e.dataTransfer.setData("drag-type", "available");
+        e.dataTransfer.setData("item", item);
+    };
+
+    const handleDragStartRanked = (e, index) => {
+        e.dataTransfer.setData("drag-type", "ranked");
+        e.dataTransfer.setData("sourceIndex", String(index));
+    };
+
+    const handleDragOver = e => e.preventDefault();
+
+    const handleDropOnRankedContainer = e => {
+        e.preventDefault();
+        setIsDroppingOnRanked(false);
+
+        const dragType = e.dataTransfer.getData("drag-type");
+
+        if (dragType === "available") {
+            const item = e.dataTransfer.getData("item");
+            if (item && !rankedItems.includes(item)) {
+                setRankedItems([...rankedItems, item]);
+                setItems(items.filter(i => i !== item));
+            }
+        } else if (dragType === "ranked") {
+            const sourceIndex = parseInt(e.dataTransfer.getData("sourceIndex"), 10);
+            const updated = [...rankedItems];
+            const [moved] = updated.splice(sourceIndex, 1);
+            updated.push(moved);
+            setRankedItems(updated);
+        }
+    };
+
+    const handleDropOnRankedItem = (e, targetIndex) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDroppingOnRanked(false);
+
+        const dragType = e.dataTransfer.getData("drag-type");
+
+        if (dragType === "available") {
+            const item = e.dataTransfer.getData("item");
+            if (item && !rankedItems.includes(item)) {
+                const updated = [...rankedItems];
+                updated.splice(targetIndex, 0, item);
+                setRankedItems(updated);
+                setItems(items.filter(i => i !== item));
+            }
+        } else if (dragType === "ranked") {
+            const sourceIndex = parseInt(e.dataTransfer.getData("sourceIndex"), 10);
+            if (sourceIndex === targetIndex) return;
+
+            const updated = [...rankedItems];
+            const [moved] = updated.splice(sourceIndex, 1);
+            const adjusted = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
+            updated.splice(adjusted, 0, moved);
+            setRankedItems(updated);
+        }
+    };
+
+    return (
+        <div className="app-shell">
+            <div className="app-shell-inner">
+                <div className="app-header">
+                    <div className="app-title">Listr · Ranking console</div>
+                    <div className="app-pill">RANKING STAGE · v0.1</div>
+                </div>
+
+                <div className="container">
+                    {/* LEFT */}
+                    <div className="panel">
+                        <div className="panel-header">
+                            <div>
+                                <div className="panel-title">Available Items</div>
+                                <div className="panel-subtitle">Drag →</div>
                             </div>
                         </div>
 
-                        {/* RIGHT SIDE */}
-                        <div className="panel">
-                            <div className="panel-header">
-                                <div>
-                                    <div className="panel-title">Ranking Stack</div>
-                                    <div className="panel-subtitle">Reorder</div>
+                        <div className="list-body">
+                            {items.map(item => (
+                                <div key={item} className="item" draggable
+                                     onDragStart={e => handleDragStartAvailable(e, item)}>
+                                    <span>{item}</span>
+                                    <span className="ranked-badge"></span>
                                 </div>
-                            </div>
+                            ))}
 
-                            <div
-                                className={"ranked-list" + (isDroppingOnRanked ? " is-dropping" : "")}
-                                onDragOver={handleDragOver}
-                                onDrop={handleDropOnRankedContainer}
-                                onDragEnter={() => setIsDroppingOnRanked(true)}
-                                onDragLeave={() => setIsDroppingOnRanked(false)}
-                            >
-                                {rankedItems.length === 0 && (
-                                    <div className="ranked-empty-state">
-                                        drop items here to boot up your list.
-                                    </div>
-                                )}
+                            {items.length === 0 && (
+                                <div className="ranked-empty-state">
+                                    all drafted — arrange on the right.
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
-                                {rankedItems.map((item, index) => (
-                                    <div
-                                        key={item}
-                                        className="ranked-item"
-                                        draggable
-                                        onDragStart={e => handleDragStartRanked(e, index)}
-                                        onDragOver={handleDragOver}
-                                        onDrop={e => handleDropOnRankedItem(e, index)}
-                                    >
-                                        <span>
-                                            <span className="rank-number">#{index + 1}</span>
-                                            {item}
-                                        </span>
-                                        <span className="ranked-badge"></span>
-                                    </div>
-                                ))}
+                    {/* RIGHT */}
+                    <div className="panel">
+                        <div className="panel-header">
+                            <div>
+                                <div className="panel-title">Ranking Stack</div>
+                                <div className="panel-subtitle">Reorder</div>
                             </div>
+                        </div>
+
+                        <div className={"ranked-list" + (isDroppingOnRanked ? " is-dropping" : "")}
+                             onDragOver={handleDragOver}
+                             onDrop={handleDropOnRankedContainer}
+                             onDragEnter={() => setIsDroppingOnRanked(true)}
+                             onDragLeave={() => setIsDroppingOnRanked(false)}>
+
+                            {rankedItems.length === 0 && (
+                                <div className="ranked-empty-state">
+                                    drop items here to begin your list.
+                                </div>
+                            )}
+
+                            {rankedItems.map((item, index) => (
+                                <div key={item} className="ranked-item" draggable
+                                     onDragStart={e => handleDragStartRanked(e, index)}
+                                     onDragOver={handleDragOver}
+                                     onDrop={e => handleDropOnRankedItem(e, index)}>
+                                    <span>
+                                        <span className="rank-number">#{index + 1}</span>
+                                        {item}
+                                    </span>
+                                    <span className="ranked-badge"></span>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
             </div>
-        );
-    }
+        </div>
+    );
+}
 
-    /* APP ROUTER */
-    function App() {
-        const [listItems, setListItems] = useState([]);
+/* -----------------------------------
+   ROUTER
+----------------------------------- */
+function App() {
+    return (
+        <BrowserRouter basename="/listr">
+            <Switch>
+                <Route exact path="/" component={HomeScreen} />
+                <Route exact path="/create" component={CreateListScreen} />
+                <Route exact path="/list/:listId/rank" component={RankingApp} />
+            </Switch>
+        </BrowserRouter>
+    );
+}
 
-        return (
-            <BrowserRouter basename="/listr">
-                <Switch>
-                    <Route exact path="/" component={HomeScreen} />
-                    <Route path="/create" render={() => (
-                        <CreateListScreen setListItems={setListItems} />
-                    )} />
-
-                    {/* NEW — unique list ranking URL */}
-                    <Route
-                        path="/list/:listId/rank"
-                        render={() => <RankingApp initialItems={listItems} />}
-                    />
-
-                    {/* OLD fallback */}
-                    <Route
-                        path="/rank"
-                        render={() => <RankingApp initialItems={listItems} />}
-                    />
-                </Switch>
-            </BrowserRouter>
-        );
-    }
-
-    ReactDOM.render(<App />, document.getElementById("root"));
+ReactDOM.render(<App />, document.getElementById("root"));
 </script>
 
 </body>
