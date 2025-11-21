@@ -20,8 +20,8 @@ export async function onRequestPost(context) {
             createdAt: Date.now(),
         };
 
-        // 🧠 Save to KV
-        await context.env.ListrKV.put(id, JSON.stringify(record));
+        // ⭐ Use the correct binding name: LISTR
+        await context.env.LISTR.put(id, JSON.stringify(record));
 
         console.log("Saved list to KV:", id);
 
