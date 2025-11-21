@@ -1,9 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Al-Beiruti Holdings</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Listr · Interactive Ranking</title>
+
+    <!-- React + ReactDOM -->
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+
+    <!-- React Router DOM v5 -->
+    <script src="https://unpkg.com/react-router-dom@5/umd/react-router-dom.min.js"></script>
+
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
         * { box-sizing: border-box; }
@@ -21,68 +31,703 @@
             color: #e5e7eb;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif;
         }
-
         #root {
             width: 95%;
-            max-width: 900px;
+            max-width: 1200px;
         }
 
-        .app-shell {
-            width: 100%;
-        }
+        .app-shell { width: 100%; }
         .app-shell-inner {
             border-radius: 18px;
-            padding: 32px 32px 40px;
-            background: radial-gradient(circle at 0 0, rgba(255,255,255,0.06), transparent 55%),
-                        radial-gradient(circle at 100% 100%, rgba(148,163,184,0.12), transparent 55%),
-                        rgba(15,23,42,0.9);
+            padding: 24px 24px 28px;
+            background:
+                radial-gradient(circle at 0 0, rgba(255,255,255,0.06), transparent 55%),
+                radial-gradient(circle at 100% 100%, rgba(148,163,184,0.12), transparent 55%),
+                rgba(15,23,42,0.9);
             box-shadow: 0 22px 60px rgba(0,0,0,0.75);
             border: 1px solid rgba(148,163,184,0.35);
-            text-align: center;
         }
 
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
         .app-title {
             letter-spacing: 0.16em;
             text-transform: uppercase;
-            font-size: 14px;
-            margin-bottom: 18px;
+            font-size: 11px;
             color: #9ca3af;
         }
-
-        .button {
-            margin-top: 24px;
-            display: inline-block;
-            padding: 14px 28px;
-            font-size: 15px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, rgba(15,23,42,0.8), rgba(17,24,39,0.9));
-            border: 1px solid rgba(148,163,184,0.6);
+        .app-pill {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.7);
+            background: rgba(15,23,42,0.85);
             color: #e5e7eb;
-            text-decoration: none;
-            letter-spacing: 0.07em;
-            transition: 180ms ease;
-            cursor: pointer;
         }
 
-        .button:hover {
-            border-color: rgba(236,72,153,0.8);
-            box-shadow: 0 0 12px rgba(236,72,153,0.4);
-            transform: translateY(-2px);
+        .container {
+            display: grid;
+            grid-template-columns: 1.1fr 1.1fr;
+            gap: 18px;
+        }
+        .panel {
+            border-radius: 14px;
+            padding: 14px 14px 16px;
+            background:
+                radial-gradient(circle at 0 0, rgba(148,163,184,0.16), transparent 55%),
+                rgba(15,23,42,0.88);
+            border: 1px solid rgba(75,85,99,0.9);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .panel-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: #9ca3af;
+        }
+        .panel-subtitle {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .list-body {
+            border-radius: 10px;
+            padding: 10px;
+            background:
+                radial-gradient(circle at 0 0, rgba(15,23,42,1), rgba(15,23,42,0.8));
+            border: 1px solid rgba(55,65,81,0.9);
+            max-height: 420px;
+            overflow-y: auto;
+        }
+
+        .hint {
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin-bottom: 7px;
+        }
+
+        .item,
+        .ranked-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 9px;
+            padding: 7px 9px;
+            margin-bottom: 6px;
+            font-size: 13px;
+            background: linear-gradient(135deg, rgba(15,23,42,0.8), rgba(17,24,39,0.9));
+            border: 1px solid rgba(75,85,99,0.9);
+            cursor: grab;
+        }
+
+        .ranked-badge {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.8);
+        }
+
+        .ranked-list {
+            border-radius: 10px;
+            padding: 10px;
+            background:
+                radial-gradient(circle at 100% 0, rgba(15,23,42,0.95), rgba(15,23,42,0.8));
+            border: 1px solid rgba(55,65,81,0.9);
+            min-height: 120px;
+            max-height: 420px;
+            overflow-y: auto;
+            transition: border-color 120ms ease, box-shadow 120ms ease;
+        }
+        .ranked-list.is-dropping {
+            border-color: rgba(94,234,212,0.9);
+            box-shadow: 0 0 0 1px rgba(45,212,191,0.4);
+        }
+
+        .ranked-empty-state {
+            font-size: 12px;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .rank-number {
+            font-size: 11px;
+            margin-right: 6px;
+            color: #94a3b8;
+        }
+
+        .home-body,
+        .create-body {
+            padding: 24px 10px 4px;
+        }
+        .home-heading,
+        .create-heading {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        .home-subtitle,
+        .create-subtitle {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 18px;
+            max-width: 520px;
+        }
+
+        .primary-button {
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 18px;
+            font-size: 13px;
+            border-radius: 999px;
+            background:
+                linear-gradient(135deg, rgba(236,72,153,0.1), rgba(52,211,153,0.06));
+            border: 1px solid rgba(236,72,153,0.7);
+            color: #e5e7eb;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 160ms ease;
+        }
+        .primary-button:hover {
+            box-shadow: 0 0 16px rgba(236,72,153,0.45);
+            transform: translateY(-1px);
+        }
+        .primary-button span {
+            margin-left: 6px;
+            font-size: 16px;
+        }
+
+        .field-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #9ca3af;
+            margin-bottom: 6px;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 180px;
+            border-radius: 12px;
+            padding: 10px 11px;
+            background: rgba(15,23,42,0.9);
+            border: 1px solid rgba(55,65,81,0.9);
+            color: #e5e7eb;
+            font-family: inherit;
+            font-size: 13px;
+            resize: vertical;
+        }
+        .textarea::placeholder {
+            color: #4b5563;
+        }
+
+        .create-actions {
+            margin-top: 14px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .secondary-link {
+            font-size: 11px;
+            color: #9ca3af;
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
         }
     </style>
 </head>
 
 <body>
-    <div id="root">
-        <div class="app-shell">
-            <div class="app-shell-inner">
-                <div class="app-title">Al-Beiruti Holdings</div>
+<div id="root"></div>
 
-                <a class="button" href="/listr">
-                    Enter Listr
-                </a>
+<script type="text/babel">
+
+/**********************************************************
+ * Imports
+ **********************************************************/
+const {
+    BrowserRouter,
+    Switch,
+    Route,
+    useHistory,
+    useParams
+} = ReactRouterDOM;
+
+const { useState, useEffect } = React;
+
+
+/**********************************************************
+ * HOME SCREEN
+ **********************************************************/
+function HomeScreen() {
+    const history = useHistory();
+    return (
+        <div className="app-shell">
+            <div className="app-shell-inner">
+                <div className="app-header">
+                    <div className="app-title">Listr · Al-Beiruti Holdings</div>
+                    <div className="app-pill">LIST ENGINE · v0.1</div>
+                </div>
+
+                <div className="home-body">
+                    <div className="home-heading">Create a list</div>
+
+                    <button
+                        className="primary-button"
+                        onClick={() => history.push("/create")}
+                    >
+                        CREATE A LIST <span>↗</span>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+    );
+}
+
+
+/**********************************************************
+ * CREATE LIST SCREEN
+ **********************************************************/
+function CreateListScreen({ setListItems }) {
+    const history = useHistory();
+    const [rawText, setRawText] = useState("");
+
+    const handleStartRanking = async () => {
+        const lines = rawText
+            .split("\n")
+            .map(l => l.trim())
+            .filter(Boolean);
+
+        if (!lines.length) {
+            alert("Add at least one item.");
+            return;
+        }
+
+        setListItems(lines);
+
+        let id = null;
+
+        try {
+            const res = await fetch("/api/list", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    items: lines,
+                    timestamp: Date.now(),
+                    userAgent: navigator.userAgent
+                })
+            });
+
+            const data = await res.json();
+            id = data?.id;
+        } catch (err) {
+            console.error("POST /api/list failed:", err);
+        }
+
+        if (id) {
+            history.push(`/list/${id}/rank`);
+        } else {
+            history.push("/rank");
+        }
+    };
+
+    return (
+        <div className="app-shell">
+            <div className="app-shell-inner">
+                <div className="app-header">
+                    <div className="app-title">Listr · Define your list</div>
+                    <div className="app-pill">INPUT STAGE</div>
+                </div>
+
+                <div className="create-body">
+                    <div className="create-heading">What are we ranking?</div>
+
+                    <div className="field-label">Items (one per line)</div>
+                    <textarea
+                        className="textarea"
+                        value={rawText}
+                        onChange={e => setRawText(e.target.value)}
+                    />
+
+                    <div className="create-actions">
+                        <button className="primary-button" onClick={handleStartRanking}>
+                            START RANKING <span>▶</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+
+/**********************************************************
+ * RANKING SCREEN — BACKEND VERSION
+ **********************************************************/
+function RankingScreen() {
+    const { listId } = useParams();
+    const history = useHistory();
+
+    const [items, setItems] = useState([]);
+    const [rankedItems, setRankedItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function load() {
+            try {
+                const res = await fetch(`/api/list/${listId}`);
+                const data = await res.json();
+                setItems(data.items || []);
+            } catch (err) {
+                console.error("Could not load list:", err);
+            }
+            setLoading(false);
+        }
+
+        load();
+    }, [listId]);
+
+    /*********** drag handlers (same as before) ***********/
+    const handleDragStartAvailable = (e, item) => {
+        e.dataTransfer.setData("source", "available");
+        e.dataTransfer.setData("item", item);
+    };
+
+    const handleDragStartRanked = (e, index) => {
+        e.dataTransfer.setData("source", "ranked");
+        e.dataTransfer.setData("sourceIndex", index);
+    };
+
+    const handleDragOver = e => e.preventDefault();
+
+    const [isDroppingOnRanked, setIsDroppingOnRanked] = useState(false);
+
+    const handleDropRankedContainer = (e) => {
+        e.preventDefault();
+        setIsDroppingOnRanked(false);
+
+        const source = e.dataTransfer.getData("source");
+
+        if (source === "available") {
+            const item = e.dataTransfer.getData("item");
+            if (!rankedItems.includes(item)) {
+                setRankedItems([...rankedItems, item]);
+                setItems(items.filter(i => i !== item));
+            }
+        } else {
+            const index = parseInt(e.dataTransfer.getData("sourceIndex"), 10);
+            const updated = [...rankedItems];
+            const [moved] = updated.splice(index, 1);
+            updated.push(moved);
+            setRankedItems(updated);
+        }
+    };
+
+    const handleDropRankedItem = (e, targetIndex) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDroppingOnRanked(false);
+
+        const source = e.dataTransfer.getData("source");
+
+        if (source === "available") {
+            const item = e.dataTransfer.getData("item");
+            const updated = [...rankedItems];
+            updated.splice(targetIndex, 0, item);
+            setRankedItems(updated);
+            setItems(items.filter(i => i !== item));
+        } else {
+            const sourceIndex = parseInt(e.dataTransfer.getData("sourceIndex"), 10);
+            if (sourceIndex === targetIndex) return;
+
+            const updated = [...rankedItems];
+            const [moved] = updated.splice(sourceIndex, 1);
+            const adjusted = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
+            updated.splice(adjusted, 0, moved);
+            setRankedItems(updated);
+        }
+    };
+
+    /*********** submit ranking ***********/
+    const handleSubmitRanking = async () => {
+        try {
+            const res = await fetch(`/api/list/${listId}/submit`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ranking: rankedItems,
+                    timestamp: Date.now(),
+                    userAgent: navigator.userAgent
+                })
+            });
+
+            const data = await res.json();
+            history.push(`/list/${listId}/results`);
+        } catch (err) {
+            console.error("Submit failed:", err);
+            alert("Failed to submit ranking.");
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="app-shell">
+                <div className="app-shell-inner">Loading…</div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="app-shell">
+            <div className="app-shell-inner">
+
+                <div className="app-header">
+                    <div className="app-title">Listr · Rank</div>
+                    <div className="app-pill">LIST #{listId}</div>
+                </div>
+
+                <div className="container">
+
+                    {/* AVAILABLE ITEMS */}
+                    <div className="panel">
+                        <div className="panel-header">
+                            <div>
+                                <div className="panel-title">Available Items</div>
+                                <div className="panel-subtitle">Drag →</div>
+                            </div>
+                        </div>
+
+                        <div className="list-body">
+                            {items.map(item => (
+                                <div
+                                    key={item}
+                                    className="item"
+                                    draggable
+                                    onDragStart={(e) => handleDragStartAvailable(e, item)}
+                                >
+                                    <span>{item}</span>
+                                    <span className="ranked-badge"></span>
+                                </div>
+                            ))}
+
+                            {items.length === 0 && (
+                                <div className="ranked-empty-state">All items ranked.</div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* RANKED STACK */}
+                    <div className="panel">
+                        <div className="panel-header">
+                            <div>
+                                <div className="panel-title">Ranking</div>
+                                <div className="panel-subtitle">Reorder items</div>
+                            </div>
+                        </div>
+
+                        <div
+                            className={"ranked-list" + (isDroppingOnRanked ? " is-dropping" : "")}
+                            onDragOver={handleDragOver}
+                            onDrop={handleDropRankedContainer}
+                            onDragEnter={() => setIsDroppingOnRanked(true)}
+                            onDragLeave={() => setIsDroppingOnRanked(false)}
+                        >
+                            {rankedItems.length === 0 && (
+                                <div className="ranked-empty-state">Drop items to begin</div>
+                            )}
+
+                            {rankedItems.map((item, index) => (
+                                <div
+                                    key={item}
+                                    className="ranked-item"
+                                    draggable
+                                    onDragStart={(e) => handleDragStartRanked(e, index)}
+                                    onDragOver={handleDragOver}
+                                    onDrop={(e) => handleDropRankedItem(e, index)}
+                                >
+                                    <span>
+                                        <span className="rank-number">#{index + 1}</span>{item}
+                                    </span>
+                                    <span className="ranked-badge"></span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <button
+                            className="primary-button"
+                            style={{ marginTop: "16px" }}
+                            onClick={handleSubmitRanking}
+                        >
+                            SUBMIT RANKING <span>✓</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+
+/**********************************************************
+ * RESULTS SCREEN
+ **********************************************************/
+function ResultsScreen() {
+    const { listId } = useParams();
+    const history = useHistory();
+
+    const [items, setItems] = useState([]);
+    const [submissions, setSubmissions] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function load() {
+            try {
+                const listRes = await fetch(`/api/list/${listId}`);
+                const listData = await listRes.json();
+
+                const subsRes = await fetch(`/api/list/${listId}/submissions`);
+                const subsData = await subsRes.json();
+
+                setItems(listData.items || []);
+                setSubmissions(subsData.submissions || []);
+            } catch (err) {
+                console.error("Results load failed:", err);
+            }
+            setLoading(false);
+        }
+        load();
+    }, [listId]);
+
+
+    if (loading)
+        return <div className="app-shell"><div className="app-shell-inner">Loading results…</div></div>;
+
+    if (!items.length)
+        return <div className="app-shell"><div className="app-shell-inner">List not found.</div></div>;
+
+    /******** Borda Count Ranking ********/
+    const N = items.length;
+    const scores = {};
+    items.forEach(i => scores[i] = 0);
+
+    submissions.forEach(sub => {
+        sub.ranking.forEach((item, index) => {
+            scores[item] += (N - index);
+        });
+    });
+
+    const results = Object.entries(scores)
+        .map(([item, score]) => ({ item, score }))
+        .sort((a, b) => b.score - a.score);
+
+    return (
+        <div className="app-shell">
+            <div className="app-shell-inner">
+
+                <div className="app-header">
+                    <div className="app-title">Listr · Results</div>
+                    <div className="app-pill">LIST #{listId}</div>
+                </div>
+
+                <div className="home-heading">Final Consensus Ranking</div>
+                <div className="home-subtitle">{submissions.length} submission(s)</div>
+
+                <div className="panel" style={{ marginTop: "20px" }}>
+                    {results.map((r, i) => (
+                        <div className="item" style={{ cursor: "default" }} key={r.item}>
+                            <span><strong>#{i + 1}</strong> — {r.item}</span>
+                            <span>{r.score} pts</span>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="home-heading" style={{ marginTop: "30px" }}>
+                    Individual Submissions
+                </div>
+
+                <div className="panel">
+                    {submissions.map(sub => (
+                        <div key={sub.submitId} style={{ marginBottom: "14px" }}>
+                            <div style={{ fontSize: "12px", color: "#9ca3af" }}>
+                                submission {sub.submitId.slice(0, 6)}
+                            </div>
+                            <div style={{ fontSize: "13px", marginTop: "4px" }}>
+                                {sub.ranking.map((item, idx) => (
+                                    <div key={idx}>
+                                        #{idx + 1} — {item}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <button
+                    className="primary-button"
+                    style={{ marginTop: "20px" }}
+                    onClick={() => history.push("/create")}
+                >
+                    MAKE ANOTHER LIST <span>↗</span>
+                </button>
+
+            </div>
+        </div>
+    );
+}
+
+
+/**********************************************************
+ * APP ROUTER
+ **********************************************************/
+function App() {
+    const [listItems, setListItems] = useState([]);
+
+    return (
+        <BrowserRouter basename="/listr">
+            <Switch>
+                <Route exact path="/" component={HomeScreen} />
+
+                <Route
+                    path="/create"
+                    render={() => <CreateListScreen setListItems={setListItems} />}
+                />
+
+                <Route
+                    path="/list/:listId/rank"
+                    render={() => <RankingScreen />}
+                />
+
+                <Route
+                    path="/list/:listId/results"
+                    render={() => <ResultsScreen />}
+                />
+
+                <Route
+                    path="/rank"
+                    render={() => (
+                        <RankingScreen initialItems={listItems} />
+                    )}
+                />
+            </Switch>
+        </BrowserRouter>
+    );
+}
+
+ReactDOM.render(<App />, document.getElementById("root"));
+
+</script>
 </body>
 </html>
