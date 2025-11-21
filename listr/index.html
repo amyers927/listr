@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Listr</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listr · Interactive Ranking</title>
 
     <!-- React + ReactDOM -->
     <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
@@ -75,8 +75,7 @@
         .panel {
             border-radius:14px;
             padding:14px 14px 16px;
-            background:radial-gradient(circle at 0 0, rgba(148,163,184,0.16), transparent 55%),
-                        rgba(15,23,42,0.88);
+            background:radial-gradient(circle at 0 0, rgba(148,163,184,0.16), transparent 55%), rgba(15,23,42,0.88);
             border:1px solid rgba(75,85,99,0.9);
         }
         .panel-header {
@@ -127,6 +126,7 @@
             min-height:120px;
             max-height:420px;
             overflow-y:auto;
+            transition:border-color 120ms ease, box-shadow 120ms ease;
         }
         .ranked-list.is-dropping {
             border-color:rgba(94,234,212,0.9);
@@ -159,6 +159,7 @@
             letter-spacing:0.12em;
             text-transform:uppercase;
             cursor:pointer;
+            transition:160ms ease;
         }
         .primary-button:hover {
             box-shadow:0 0 16px rgba(236,72,153,0.45);
@@ -196,25 +197,19 @@
 
 <script type="text/babel">
 
-/* ==========================================
-   GLOBAL DIAGNOSTIC ENTRY LOG
-========================================== */
+/* LOGGING FOR DEBUG */
 console.log("🔥 SCRIPT LOADED — Top of file executed");
 
-
-/* ==========================================
-   IMPORTS FROM UMD GLOBALS
-========================================== */
 const { BrowserRouter, Switch, Route, useHistory, useParams } = window.ReactRouterDOM;
 const { useState, useEffect } = React;
 
 
-/* ==========================================
-   HOME SCREEN
-========================================== */
+/* -----------------------------------
+   HOME SCREEN (/listr)
+----------------------------------- */
 function HomeScreen() {
-    console.log("🔥 HomeScreen rendered");
     const history = useHistory();
+    console.log("🔥 HomeScreen rendered");
 
     return (
         <div className="app-shell">
@@ -246,16 +241,18 @@ function HomeScreen() {
 }
 
 
-/* ==========================================
-   CREATE LIST SCREEN
-========================================== */
+/* -----------------------------------
+   CREATE LIST SCREEN (/create)
+----------------------------------- */
 function CreateListScreen({ setListItems }) {
-    console.log("🔥 CreateListScreen rendered");
     const history = useHistory();
     const [rawText, setRawText] = useState("");
 
+    console.log("🔥 CreateListScreen rendered");
+
     const handleStartRanking = async () => {
         console.log("🔥 handleStartRanking() called");
+
         const lines = rawText
             .split("\n")
             .map(line => line.trim())
@@ -264,7 +261,7 @@ function CreateListScreen({ setListItems }) {
         console.log("🔥 Parsed lines:", lines);
 
         if (!lines.length) {
-            alert("Give me at least one item.");
+            alert("Give me at least one item, king.");
             return;
         }
 
@@ -272,7 +269,6 @@ function CreateListScreen({ setListItems }) {
         console.log("🔥 setListItems() executed");
 
         let id = null;
-
         try {
             const res = await fetch("/api/list", {
                 method: "POST",
@@ -285,22 +281,25 @@ function CreateListScreen({ setListItems }) {
             });
 
             console.log("🔥 /api/list responded:", res.status);
+
             const data = await res.json();
             console.log("🔥 Backend returned:", data);
 
             id = data?.id;
+
         } catch (err) {
-            console.error("🔥 Error POSTing list:", err);
+            console.error("Logging error:", err);
         }
 
         if (id) {
             console.log("🔥 Navigating to /list/" + id + "/rank");
             history.push(`/list/${id}/rank`);
         } else {
-            console.log("🔥 No ID returned — falling back to /rank");
             history.push("/rank");
         }
     };
+
+    const handleClear = () => setRawText("");
 
     return (
         <div className="app-shell">
@@ -313,7 +312,7 @@ function CreateListScreen({ setListItems }) {
                 <div className="create-body">
                     <div className="create-heading">What are we ranking?</div>
                     <div className="create-subtitle">
-                        Add items, one per line.
+                        Add one item per line.
                     </div>
 
                     <div className="field-label">Items (one per line)</div>
@@ -322,13 +321,23 @@ function CreateListScreen({ setListItems }) {
                         className="textarea"
                         value={rawText}
                         onChange={e => setRawText(e.target.value)}
-                        placeholder="American Analog Set\nTortoise\nThe Cranberries\nHum\nRilo Kiley\n..."
+                        placeholder={`Example:
+American Analog Set
+Tortoise
+The Cranberries
+Hum
+Rilo Kiley
+...`}
                     />
 
                     <div className="create-actions">
                         <button className="primary-button" onClick={handleStartRanking}>
                             START RANKING <span>▶</span>
                         </button>
+
+                        <div className="secondary-link" onClick={handleClear}>
+                            clear all
+                        </div>
                     </div>
                 </div>
             </div>
@@ -337,31 +346,31 @@ function CreateListScreen({ setListItems }) {
 }
 
 
-/* ==========================================
-   RANKING SCREEN — dynamic, backend-powered
-========================================== */
+/* -----------------------------------
+   RANKING SCREEN (dynamic)
+   /list/:listId/rank
+----------------------------------- */
 function RankingScreen() {
-    console.log("🔥 RankingScreen() CALLED");
-
     const { listId } = useParams();
     const history = useHistory();
 
+    console.log("🔥 RankingScreen() CALLED");
     console.log("🔥 Route param listId =", listId);
 
     const [items, setItems] = useState([]);
     const [rankedItems, setRankedItems] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [isDropping, setIsDropping] = useState(false);
 
-
+    /* Load data from KV */
     useEffect(() => {
-        console.log("🔥 RankingScreen useEffect → fetching backend list...");
+        console.log("🔥 RankingScreen loading...");
 
         async function load() {
-            try {
-                console.log(`🔥 Fetching /api/list/${listId}`);
-                const res = await fetch(`/api/list/${listId}`);
+            console.log("🔥 RankingScreen useEffect → fetching backend list...");
+            console.log("🔥 Fetching /api/list/" + listId);
 
+            try {
+                const res = await fetch(`/api/list/${listId}`);
                 console.log("🔥 Backend responded:", res.status);
 
                 const data = await res.json();
@@ -369,21 +378,134 @@ function RankingScreen() {
 
                 setItems(data.items || []);
             } catch (err) {
-                console.error("🔥 ERROR loading list:", err);
+                console.error("Failed to load list:", err);
             }
             setLoading(false);
         }
-
         load();
     }, [listId]);
 
 
+    /* Drag logic — unchanged */
+    const handleDragStartAvailable = (e, item) => {
+        e.dataTransfer.setData("drag-type", "available");
+        e.dataTransfer.setData("item", item);
+    };
+
+    const handleDragStartRanked = (e, index) => {
+        e.dataTransfer.setData("drag-type", "ranked");
+        e.dataTransfer.setData("sourceIndex", String(index));
+    };
+
+    const handleDragOver = (e) => e.preventDefault();
+
+    const [isDroppingOnRanked, setIsDroppingOnRanked] = useState(false);
+
+    const handleDropOnRankedContainer = (e) => {
+        e.preventDefault();
+        setIsDroppingOnRanked(false);
+
+        const dragType = e.dataTransfer.getData("drag-type");
+
+        if (dragType === "available") {
+            const item = e.dataTransfer.getData("item");
+            if (item && !rankedItems.includes(item)) {
+                setRankedItems([...rankedItems, item]);
+                setItems(items.filter(i => i !== item));
+            }
+        } else if (dragType === "ranked") {
+            const sourceIndex = parseInt(e.dataTransfer.getData("sourceIndex"), 10);
+            if (!isNaN(sourceIndex)) {
+                const updated = [...rankedItems];
+                const [moved] = updated.splice(sourceIndex, 1);
+                updated.push(moved);
+                setRankedItems(updated);
+            }
+        }
+    };
+
+    const handleDropOnRankedItem = (e, targetIndex) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDroppingOnRanked(false);
+
+        const dragType = e.dataTransfer.getData("drag-type");
+
+        if (dragType === "available") {
+            const item = e.dataTransfer.getData("item");
+            if (item && !rankedItems.includes(item)) {
+                const updated = [...rankedItems];
+                updated.splice(targetIndex, 0, item);
+                setRankedItems(updated);
+                setItems(items.filter(i => i !== item));
+            }
+        } else {
+            const sourceIndex = parseInt(e.dataTransfer.getData("sourceIndex"), 10);
+            if (sourceIndex === targetIndex) return;
+
+            const updated = [...rankedItems];
+            const [moved] = updated.splice(sourceIndex, 1);
+            const adjusted = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
+            updated.splice(adjusted, 0, moved);
+
+            setRankedItems(updated);
+        }
+    };
+
+    /* -----------------------------------
+       SUBMIT RANKING
+    ----------------------------------- */
+    async function handleSubmitRanking() {
+        console.log("🔥 handleSubmitRanking() called");
+        console.log("🔥 rankedItems:", rankedItems);
+
+        if (!rankedItems.length) {
+            alert("Rank at least one item first!");
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/list/${listId}/submit`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ranking: rankedItems,
+                    timestamp: Date.now(),
+                    userAgent: navigator.userAgent
+                })
+            });
+
+            const data = await res.json();
+            console.log("🔥 Submit response:", data);
+
+            if (data.submitId) {
+                history.push(`/list/${listId}/results`);
+            } else {
+                alert("Something went wrong submitting.");
+            }
+
+        } catch (err) {
+            console.error("Submit error:", err);
+            alert("Failed.");
+        }
+    }
+
+
     if (loading) {
-        console.log("🔥 RankingScreen loading...");
         return (
             <div className="app-shell">
                 <div className="app-shell-inner">
-                    <div className="home-heading">Loading…</div>
+                    <div className="home-heading">Loading list…</div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!items.length && !rankedItems.length) {
+        return (
+            <div className="app-shell">
+                <div className="app-shell-inner">
+                    <div className="home-heading">That list doesn’t exist or is empty.</div>
                 </div>
             </div>
         );
@@ -395,7 +517,7 @@ function RankingScreen() {
         <div className="app-shell">
             <div className="app-shell-inner">
                 <div className="app-header">
-                    <div className="app-title">Listr · Ranking</div>
+                    <div className="app-title">Listr · Ranking console</div>
                     <div className="app-pill">LIST #{listId}</div>
                 </div>
 
@@ -406,7 +528,7 @@ function RankingScreen() {
                         <div className="panel-header">
                             <div>
                                 <div className="panel-title">Available Items</div>
-                                <div className="panel-subtitle">Drag to rank →</div>
+                                <div className="panel-subtitle">Drag →</div>
                             </div>
                             <div className="secondary-link" onClick={() => history.push("/create")}>
                                 new list
@@ -414,17 +536,14 @@ function RankingScreen() {
                         </div>
 
                         <div className="list-body">
-                            <div className="hint">drag items →</div>
+                            <div className="hint">drag items into the right-hand stack</div>
 
                             {items.map(item => (
                                 <div
                                     key={item}
                                     className="item"
                                     draggable
-                                    onDragStart={(e) => {
-                                        e.dataTransfer.setData("drag-type", "available");
-                                        e.dataTransfer.setData("item", item);
-                                    }}
+                                    onDragStart={(e) => handleDragStartAvailable(e, item)}
                                 >
                                     <span>{item}</span>
                                     <span className="ranked-badge"></span>
@@ -432,7 +551,9 @@ function RankingScreen() {
                             ))}
 
                             {items.length === 0 && (
-                                <div className="ranked-empty-state">no remaining items</div>
+                                <div className="ranked-empty-state">
+                                    all items drafted → reorder on right
+                                </div>
                             )}
                         </div>
                     </div>
@@ -447,46 +568,46 @@ function RankingScreen() {
                         </div>
 
                         <div
-                            className={"ranked-list" + (isDropping ? " is-dropping" : "")}
-                            onDragOver={(e) => e.preventDefault()}
-                            onDrop={(e) => {
-                                const dragType = e.dataTransfer.getData("drag-type");
-                                setIsDropping(false);
-
-                                if (dragType === "available") {
-                                    const item = e.dataTransfer.getData("item");
-                                    setRankedItems([...rankedItems, item]);
-                                    setItems(items.filter(i => i !== item));
-                                }
-                            }}
-                            onDragEnter={() => setIsDropping(true)}
-                            onDragLeave={() => setIsDropping(false)}
+                            className={"ranked-list" + (isDroppingOnRanked ? " is-dropping" : "")}
+                            onDragOver={handleDragOver}
+                            onDrop={handleDropOnRankedContainer}
+                            onDragEnter={() => setIsDroppingOnRanked(true)}
+                            onDragLeave={() => setIsDroppingOnRanked(false)}
                         >
-
                             {rankedItems.length === 0 && (
-                                <div className="ranked-empty-state">drop items here</div>
+                                <div className="ranked-empty-state">
+                                    drop items here to begin ranking
+                                </div>
                             )}
 
-                            {rankedItems.map((item, i) => (
+                            {rankedItems.map((item, index) => (
                                 <div
-                                    key={item}
+                                    key={index + "_" + item}
                                     className="ranked-item"
                                     draggable
-                                    onDragStart={(e) => {
-                                        e.dataTransfer.setData("drag-type", "ranked");
-                                        e.dataTransfer.setData("sourceIndex", i);
-                                    }}
+                                    onDragStart={(e) => handleDragStartRanked(e, index)}
+                                    onDragOver={handleDragOver}
+                                    onDrop={(e) => handleDropOnRankedItem(e, index)}
                                 >
                                     <span>
-                                        <span className="rank-number">#{i + 1}</span>
+                                        <span className="rank-number">#{index + 1}</span>
                                         {item}
                                     </span>
                                     <span className="ranked-badge"></span>
                                 </div>
                             ))}
                         </div>
-                    </div>
 
+                        <!-- SUBMIT BUTTON -->
+                        <button
+                            className="primary-button"
+                            style={{ marginTop: "18px", width: "100%" }}
+                            onClick={handleSubmitRanking}
+                        >
+                            SUBMIT RANKING <span>✓</span>
+                        </button>
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -494,10 +615,11 @@ function RankingScreen() {
 }
 
 
-/* ==========================================
-   APP ROOT WITH DIAGNOSTIC LOGGING
-========================================== */
+/* -----------------------------------
+   ROUTER WRAPPER
+----------------------------------- */
 function App() {
+
     console.log("🔥 App() called — React Router about to mount");
 
     const [listItems, setListItems] = React.useState([]);
@@ -505,42 +627,29 @@ function App() {
 
     return (
         <BrowserRouter basename="/listr">
-            {console.log("🔥 BrowserRouter rendered")}
-
             <Switch>
-                {console.log("🔥 Switch rendered")}
 
-                <Route
-                    exact
-                    path="/"
-                    render={() => {
-                        console.log("🔥 Route '/' matched");
-                        return <HomeScreen />;
-                    }}
-                />
+                <Route exact path="/" component={HomeScreen} />
 
                 <Route
                     path="/create"
-                    render={() => {
-                        console.log("🔥 Route '/create' matched");
-                        return <CreateListScreen setListItems={setListItems} />;
-                    }}
+                    render={() => (
+                        <CreateListScreen setListItems={setListItems} />
+                    )}
                 />
 
+                {/* Dynamic backend-powered ranking */}
                 <Route
                     path="/list/:listId/rank"
-                    render={() => {
-                        console.log("🔥 Route '/list/:listId/rank' matched");
-                        return <RankingScreen />;
-                    }}
+                    render={() => <RankingScreen />}
                 />
 
+                {/* Fallback ranking */}
                 <Route
                     path="/rank"
-                    render={() => {
-                        console.log("🔥 Route '/rank' matched");
-                        return <RankingScreen initialItems={listItems} />;
-                    }}
+                    render={() => (
+                        <RankingScreen initialItems={listItems} />
+                    )}
                 />
 
             </Switch>
@@ -548,12 +657,10 @@ function App() {
     );
 }
 
-
-/* ==========================================
-   FINAL RENDER
-========================================== */
 console.log("🔥 Calling ReactDOM.render(<App />)");
+
 ReactDOM.render(<App />, document.getElementById("root"));
+
 console.log("🔥 ReactDOM.render() finished");
 
 </script>
