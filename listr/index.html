@@ -29,6 +29,279 @@
 </head>
 <body>
     <h1>Hello World</h1>
+
+<div class="wrap">
+    <h1>Blackjack</h1>
+
+    <div class="table" role="application" aria-label="Blackjack game">
+      <div class="row">
+        <div class="who">
+          <div class="label">Dealer</div>
+          <div class="score" id="dealerScore">Score: —</div>
+        </div>
+        <div class="cards" id="dealerCards"></div>
+      </div>
+
+      <div class="row">
+        <div class="who">
+          <div class="label">You</div>
+          <div class="score" id="playerScore">Score: —</div>
+        </div>
+        <div class="cards" id="playerCards"></div>
+      </div>
+
+      <div class="controls">
+        <button id="dealBtn">Deal</button>
+        <button id="hitBtn" disabled>Hit</button>
+        <button id="standBtn" disabled>Stand</button>
+        <button id="newBtn">New Round</button>
+      </div>
+
+      <div class="status">
+        <div class="msg" id="message">Click <b>Deal</b> to start.</div>
+        <div class="meta" id="deckMeta">Deck: —</div>
+      </div>
+
+      <div class="tiny">
+        Rules: dealer hits to 17, Blackjack pays 3:2, no split/double/insurance.
+      </div>
+    </div>
+  </div>
+    
+    <script>
+    // --- Basic Blackjack (single-deck) ---
+    const SUITS = ["♠","♥","♦","♣"];
+    const RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+
+    /** @typedef {{rank:string, suit:string}} Card */
+
+    const els = {
+      dealerCards: document.getElementById("dealerCards"),
+      playerCards: document.getElementById("playerCards"),
+      dealerScore: document.getElementById("dealerScore"),
+      playerScore: document.getElementById("playerScore"),
+      message: document.getElementById("message"),
+      deckMeta: document.getElementById("deckMeta"),
+      dealBtn: document.getElementById("dealBtn"),
+      hitBtn: document.getElementById("hitBtn"),
+      standBtn: document.getElementById("standBtn"),
+      newBtn: document.getElementById("newBtn"),
+    };
+
+    let deck = /** @type {Card[]} */([]);
+    let dealer = /** @type {Card[]} */([]);
+    let player = /** @type {Card[]} */([]);
+
+    let inRound = false;
+    let revealDealerHole = false;
+    let outcomeLocked = false;
+
+    function buildDeck() {
+      /** @type {Card[]} */
+      const d = [];
+      for (const suit of SUITS) {
+        for (const rank of RANKS) d.push({ rank, suit });
+      }
+      return shuffle(d);
+    }
+
+    function shuffle(arr) {
+      // Fisher-Yates
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function draw() {
+      if (deck.length === 0) deck = buildDeck();
+      return deck.pop();
+    }
+
+    function isRedSuit(suit) {
+      return suit === "♥" || suit === "♦";
+    }
+
+    function handValue(hand) {
+      // Aces count as 11 unless bust -> downgrade to 1 as needed
+      let total = 0;
+      let aces = 0;
+
+      for (const c of hand) {
+        if (c.rank === "A") { aces++; total += 11; }
+        else if (c.rank === "K" || c.rank === "Q" || c.rank === "J") total += 10;
+        else total += Number(c.rank);
+      }
+
+      while (total > 21 && aces > 0) {
+        total -= 10; // turn one Ace from 11 to 1
+        aces--;
+      }
+      return total;
+    }
+
+    function isBlackjack(hand) {
+      return hand.length === 2 && handValue(hand) === 21;
+    }
+
+    function render() {
+      els.dealerCards.innerHTML = "";
+      els.playerCards.innerHTML = "";
+
+      // Dealer cards (hide hole card until reveal)
+      dealer.forEach((c, idx) => {
+        const hidden = !revealDealerHole && idx === 1 && inRound && !outcomeLocked;
+        els.dealerCards.appendChild(renderCard(c, hidden));
+      });
+
+      player.forEach(c => els.playerCards.appendChild(renderCard(c, false)));
+
+      const dealerShownValue = (!revealDealerHole && inRound && !outcomeLocked)
+        ? handValue([dealer[0]]) // show only up-card value
+        : handValue(dealer);
+
+      els.dealerScore.textContent = `Score: ${inRound && !outcomeLocked && !revealDealerHole ? dealerShownValue + " (showing)" : handValue(dealer)}`;
+      els.playerScore.textContent = `Score: ${player.length ? handValue(player) : "—"}`;
+      els.deckMeta.textContent = `Deck: ${deck.length} cards`;
+    }
+
+    function renderCard(card, hidden) {
+      const div = document.createElement("div");
+      div.className = "card" + (isRedSuit(card.suit) ? " red" : "");
+      div.textContent = hidden ? "🂠" : `${card.rank}${card.suit}`;
+      div.title = hidden ? "Hidden card" : `${card.rank} of ${card.suit}`;
+      return div;
+    }
+
+    function setMessage(html) {
+      els.message.innerHTML = html;
+    }
+
+    function setControls() {
+      els.hitBtn.disabled = !inRound || outcomeLocked;
+      els.standBtn.disabled = !inRound || outcomeLocked;
+      els.dealBtn.disabled = inRound; // deal starts a round
+    }
+
+    function startRound() {
+      if (deck.length < 15) deck = buildDeck(); // soft reset when deck is low
+
+      dealer = [];
+      player = [];
+      inRound = true;
+      outcomeLocked = false;
+      revealDealerHole = false;
+
+      // Initial deal: player, dealer, player, dealer
+      player.push(draw(), draw());
+      dealer.push(draw(), draw());
+
+      // Immediate checks
+      const pBJ = isBlackjack(player);
+      const dBJ = isBlackjack(dealer);
+
+      if (pBJ || dBJ) {
+        revealDealerHole = true;
+        outcomeLocked = true;
+        inRound = false;
+
+        if (pBJ && dBJ) setMessage("Push — both have Blackjack.");
+        else if (pBJ) setMessage("Blackjack! You win (pays 3:2).");
+        else setMessage("Dealer has Blackjack. You lose.");
+
+        setControls();
+        render();
+        return;
+      }
+
+      setMessage("Your move: Hit or Stand.");
+      setControls();
+      render();
+    }
+
+    function playerHit() {
+      if (!inRound || outcomeLocked) return;
+      player.push(draw());
+
+      const v = handValue(player);
+      if (v > 21) {
+        revealDealerHole = true;
+        outcomeLocked = true;
+        inRound = false;
+        setMessage(`Bust (${v}). You lose.`);
+      } else if (v === 21) {
+        playerStand(); // auto-stand on 21
+        return;
+      } else {
+        setMessage("Hit or Stand?");
+      }
+
+      setControls();
+      render();
+    }
+
+    function dealerPlay() {
+      revealDealerHole = true;
+
+      while (handValue(dealer) < 17) {
+        dealer.push(draw());
+      }
+    }
+
+    function settle() {
+      const pv = handValue(player);
+      const dv = handValue(dealer);
+
+      if (dv > 21) return setMessage(`Dealer busts (${dv}). You win!`);
+      if (pv > dv) return setMessage(`You win! (${pv} vs ${dv})`);
+      if (pv < dv) return setMessage(`You lose. (${pv} vs ${dv})`);
+      return setMessage(`Push. (${pv} vs ${dv})`);
+    }
+
+    function playerStand() {
+      if (!inRound || outcomeLocked) return;
+
+      dealerPlay();
+      outcomeLocked = true;
+      inRound = false;
+      settle();
+
+      setControls();
+      render();
+    }
+
+    function newRoundSoftReset() {
+      dealer = [];
+      player = [];
+      inRound = false;
+      outcomeLocked = false;
+      revealDealerHole = false;
+
+      setMessage("Click <b>Deal</b> to start.");
+      setControls();
+      render();
+    }
+
+    // --- Wire up UI ---
+    els.dealBtn.addEventListener("click", startRound);
+    els.hitBtn.addEventListener("click", playerHit);
+    els.standBtn.addEventListener("click", playerStand);
+    els.newBtn.addEventListener("click", newRoundSoftReset);
+
+    // Keyboard: H=hit, S=stand, D=deal
+    window.addEventListener("keydown", (e) => {
+      if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+      const k = e.key.toLowerCase();
+      if (k === "d") startRound();
+      if (k === "h") playerHit();
+      if (k === "s") playerStand();
+    });
+
+    // Init
+    deck = buildDeck();
+    newRoundSoftReset();
+  </script>
 </body>
 </html>
 
