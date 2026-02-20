@@ -29,12 +29,24 @@
 
     .table {
         width: 600px;
+        height: 500px;
         padding: 20px;
         border-radius: 20px;
-        color: white;
-        background: rgba(0, 0, 0, 0.75);
+        color: black;
+        background: white;
         border: 2px solid rgba(255, 255, 255, 0.25);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
+
+    .cards {
+        min-height: 70px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+        
   /* make links/buttons use a hand-ish cursor (still your custom cursor) */
   a, button { cursor: inherit; }
 </style>
