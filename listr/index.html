@@ -62,6 +62,93 @@
         gap: 8px;
         flex-wrap: wrap;
     }
+
+         /* --- Fake retro popup ads --- */
+  .ad-popup {
+    position: fixed;
+    width: 320px;
+    background: #c0c0c0;
+    border: 2px solid #000;
+    box-shadow:
+      2px 2px 0 #000,
+      4px 4px 0 rgba(0,0,0,0.25);
+    z-index: 9999;
+    user-select: none;
+  }
+
+  .ad-titlebar {
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6px;
+    background: linear-gradient(90deg, #000080, #1084d0);
+    color: #fff;
+    font: 12px/1.1 "MS Sans Serif", Tahoma, Arial, sans-serif;
+    cursor: move;
+  }
+
+  .ad-titlebar .ad-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ad-titlebar .ad-icon {
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.6);
+    box-shadow: inset 1px 1px 0 rgba(0,0,0,0.15);
+  }
+
+  .ad-close {
+    width: 20px;
+    height: 18px;
+    background: #c0c0c0;
+    border: 2px outset #fff;
+    color: #000;
+    font: 12px/1 "MS Sans Serif", Tahoma, Arial, sans-serif;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    padding: 0;
+  }
+  .ad-close:active { border: 2px inset #fff; }
+
+  .ad-body {
+    padding: 8px;
+    background: #c0c0c0;
+    border-top: 1px solid rgba(0,0,0,0.35);
+  }
+
+  .ad-img {
+    width: 100%;
+    display: block;
+    border: 2px inset #fff;
+    background: #fff;
+  }
+
+  .ad-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .ad-btn {
+    min-width: 80px;
+    padding: 4px 10px;
+    background: #c0c0c0;
+    border: 2px outset #fff;
+    font: 12px/1 "MS Sans Serif", Tahoma, Arial, sans-serif;
+    cursor: pointer;
+  }
+  .ad-btn:active { border: 2px inset #fff;
+     }
         
   /* make links/buttons use a hand-ish cursor (still your custom cursor) */
   a, button { cursor: inherit; }
@@ -343,6 +430,141 @@
       if (k === "s") playerStand();
     });
 
+  // --- Fake Pop-up Ads ---
+  let adZ = 10000;
+
+  function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
+
+  function makeAdPopup(imgSrc, titleText = "Advertisement") {
+    const popup = document.createElement("div");
+    popup.className = "ad-popup";
+    popup.style.zIndex = String(adZ++);
+
+    const titlebar = document.createElement("div");
+    titlebar.className = "ad-titlebar";
+
+    const title = document.createElement("div");
+    title.className = "ad-title";
+
+    const icon = document.createElement("div");
+    icon.className = "ad-icon";
+
+    const label = document.createElement("div");
+    label.textContent = titleText;
+
+    title.appendChild(icon);
+    title.appendChild(label);
+
+    const close = document.createElement("button");
+    close.className = "ad-close";
+    close.type = "button";
+    close.setAttribute("aria-label", "Close ad");
+    close.textContent = "✕";
+
+    titlebar.appendChild(title);
+    titlebar.appendChild(close);
+
+    const body = document.createElement("div");
+    body.className = "ad-body";
+
+    const img = document.createElement("img");
+    img.className = "ad-img";
+    img.alt = "Fake popup ad";
+    img.src = imgSrc;
+
+    const footer = document.createElement("div");
+    footer.className = "ad-footer";
+
+    const ok = document.createElement("button");
+    ok.className = "ad-btn";
+    ok.type = "button";
+    ok.textContent = "OK";
+
+    const cancel = document.createElement("button");
+    cancel.className = "ad-btn";
+    cancel.type = "button";
+    cancel.textContent = "Cancel";
+
+    footer.appendChild(ok);
+    footer.appendChild(cancel);
+
+    body.appendChild(img);
+    body.appendChild(footer);
+
+    popup.appendChild(titlebar);
+    popup.appendChild(body);
+
+    // Bring to front on interaction
+    popup.addEventListener("mousedown", () => {
+      popup.style.zIndex = String(adZ++);
+    });
+
+    // Close handlers
+    function kill() { popup.remove(); }
+    close.addEventListener("click", kill);
+    ok.addEventListener("click", kill);
+    cancel.addEventListener("click", kill);
+
+    // Draggable via titlebar
+    let dragging = false;
+    let startX = 0, startY = 0, startLeft = 0, startTop = 0;
+
+    titlebar.addEventListener("mousedown", (e) => {
+      dragging = true;
+      popup.style.zIndex = String(adZ++);
+
+      const rect = popup.getBoundingClientRect();
+      startLeft = rect.left;
+      startTop = rect.top;
+      startX = e.clientX;
+      startY = e.clientY;
+
+      e.preventDefault();
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      const w = popup.offsetWidth;
+      const h = popup.offsetHeight;
+
+      const left = clamp(startLeft + dx, 6, window.innerWidth - w - 6);
+      const top  = clamp(startTop + dy, 6, window.innerHeight - h - 6);
+
+      popup.style.left = left + "px";
+      popup.style.top  = top + "px";
+    });
+
+    window.addEventListener("mouseup", () => { dragging = false; });
+
+    // Initial position (random-ish, but on screen)
+    const w = 320;
+    const h = 260;
+    const left = Math.floor(Math.random() * Math.max(1, window.innerWidth - w - 12)) + 6;
+    const top  = Math.floor(Math.random() * Math.max(1, window.innerHeight - h - 12)) + 6;
+    popup.style.left = left + "px";
+    popup.style.top  = top + "px";
+
+    document.body.appendChild(popup);
+    return popup;
+  }
+
+  function spawnAdSpam(count = 6) {
+    for (let i = 1; i <= count; i++) {
+      // Stagger them so it feels more “spammy”
+      setTimeout(() => {
+        makeAdPopup(`./images/ad${i}.png`, "Windows has detected a problem");
+      }, i * 180);
+    }
+  }
+
+  // Call this once on page load (your script is already at the end of <body>)
+  spawnAdSpam(6);
+
+  // ... your existing code continues ...
+        
     // Init
     deck = buildDeck();
     newRoundSoftReset();
