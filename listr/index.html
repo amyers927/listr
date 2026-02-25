@@ -22,6 +22,69 @@
 </svg>") 16 16, auto;
   }
 
+/* --- Sexy center console w/ tabs --- */
+.console {
+  width: 680px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.78);
+  border: 2px solid rgba(255,255,255,0.35);
+  box-shadow: 0 18px 50px rgba(0,0,0,0.22);
+  overflow: hidden;
+  backdrop-filter: blur(6px);
+}
+
+.console-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 10px 10px 0 10px;
+  background: rgba(255,255,255,0.7);
+  border-bottom: 1px solid rgba(0,0,0,0.10);
+}
+
+.tab {
+  appearance: none;
+  border: 1px solid rgba(0,0,0,0.14);
+  border-bottom: none;
+  padding: 10px 12px;
+  border-radius: 14px 14px 0 0;
+  background: rgba(240,240,240,0.9);
+  font: 12px/1 system-ui, -apple-system, Arial, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.75;
+}
+
+.tab:hover { opacity: 0.95; transform: translateY(-1px); }
+.tab.active {
+  opacity: 1;
+  background: rgba(255,255,255,0.95);
+  border-color: rgba(0,0,0,0.18);
+}
+
+.console-body {
+  padding: 14px;
+}
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+.panel-inner {
+  padding: 6px;
+}
+
+.panel-title {
+  margin: 0 0 10px 0;
+  font: 700 18px/1.2 system-ui, -apple-system, Arial, sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.panel-text {
+  margin: 0;
+  font: 14px/1.5 system-ui, -apple-system, Arial, sans-serif;
+  opacity: 0.85;
+}
+        
     .board-image {
         display: flex;
         flex-direction: column;
@@ -163,39 +226,80 @@
 
 <div class="wrap">
 
-    <div class="table" role="application" aria-label="Blackjack game">
-      <div class="row">
-        <div class="who">
-          <div class="label">Dealer</div>
-          <div class="score" id="dealerScore">Score: —</div>
+   <div class="console" role="region" aria-label="Center console">
+  <div class="console-tabs" role="tablist" aria-label="Console tabs">
+    <button class="tab active" role="tab" aria-selected="true" data-tab="about">About Me</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="gallery">Gallery</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="blackjack">Blackjack</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="jeopardy">Jeopardy</button>
+  </div>
+
+  <div class="console-body">
+    <!-- ABOUT -->
+    <section class="panel active" role="tabpanel" data-panel="about">
+      <div class="panel-inner">
+        <h2 class="panel-title">A. D. Myers</h2>
+        <p class="panel-text">About me goes here. (You’ll flesh this out.)</p>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section class="panel" role="tabpanel" data-panel="gallery">
+      <div class="panel-inner">
+        <h2 class="panel-title">Gallery</h2>
+        <p class="panel-text">Coming soon.</p>
+      </div>
+    </section>
+
+    <!-- BLACKJACK -->
+    <section class="panel" role="tabpanel" data-panel="blackjack">
+      <div class="panel-inner">
+        <!-- ✅ your existing blackjack block moved inside this tab -->
+        <div class="table" role="application" aria-label="Blackjack game">
+          <div class="row">
+            <div class="who">
+              <div class="label">Dealer</div>
+              <div class="score" id="dealerScore">Score: —</div>
+            </div>
+            <div class="cards" id="dealerCards"></div>
+          </div>
+
+          <div class="row">
+            <div class="who">
+              <div class="label">You</div>
+              <div class="score" id="playerScore">Score: —</div>
+            </div>
+            <div class="cards" id="playerCards"></div>
+          </div>
+
+          <div class="controls">
+            <button id="dealBtn">Deal</button>
+            <button id="hitBtn" disabled>Hit</button>
+            <button id="standBtn" disabled>Stand</button>
+            <button id="newBtn">New Round</button>
+          </div>
+
+          <div class="status">
+            <div class="msg" id="message">Click <b>Deal</b> to start.</div>
+            <div class="meta" id="deckMeta">Deck: —</div>
+          </div>
+
+          <div class="tiny">
+            Rules: dealer hits to 17, Blackjack pays 3:2, no split/double/insurance.
+          </div>
         </div>
-        <div class="cards" id="dealerCards"></div>
       </div>
+    </section>
 
-      <div class="row">
-        <div class="who">
-          <div class="label">You</div>
-          <div class="score" id="playerScore">Score: —</div>
-        </div>
-        <div class="cards" id="playerCards"></div>
+    <!-- JEOPARDY -->
+    <section class="panel" role="tabpanel" data-panel="jeopardy">
+      <div class="panel-inner">
+        <h2 class="panel-title">Jeopardy</h2>
+        <p class="panel-text">Coming soon.</p>
       </div>
-
-      <div class="controls">
-        <button id="dealBtn">Deal</button>
-        <button id="hitBtn" disabled>Hit</button>
-        <button id="standBtn" disabled>Stand</button>
-        <button id="newBtn">New Round</button>
-      </div>
-
-      <div class="status">
-        <div class="msg" id="message">Click <b>Deal</b> to start.</div>
-        <div class="meta" id="deckMeta">Deck: —</div>
-      </div>
-
-      <div class="tiny">
-        Rules: dealer hits to 17, Blackjack pays 3:2, no split/double/insurance.
-      </div>
-    </div><br>
+    </section>
+  </div>
+</div><br>
     <div class="board-image">
     <img src="./images/porsche.gif" alt="Awesome rotating GIF of a Porsche 911."><br>
     <img src="./images/fire.gif" alt="Sick photo of flames that says 'Have a nice time with my site.'">
@@ -570,348 +674,26 @@
     // Init
     deck = buildDeck();
     newRoundSoftReset();
+
+    // --- Tabs for center console ---
+(function setupTabs() {
+  const tabs = Array.from(document.querySelectorAll(".console .tab"));
+  const panels = Array.from(document.querySelectorAll(".console .panel"));
+
+  function activate(name) {
+    tabs.forEach(t => {
+      const on = t.dataset.tab === name;
+      t.classList.toggle("active", on);
+      t.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    panels.forEach(p => p.classList.toggle("active", p.dataset.panel === name));
+  }
+
+  tabs.forEach(t => t.addEventListener("click", () => activate(t.dataset.tab)));
+
+  // default tab
+  activate("blackjack");
+})();
   </script>
-</body>
-</html>
-
-<!-- Broken code beneath this line. Fix another time
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Listr · Interactive Ranking</title>
-
-<!-- React + ReactDOM -->
-<!--
-    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-
-    <!-- React Router DOM v5 -->
-<!--
-    <script src="https://unpkg.com/react-router-dom@5/umd/react-router-dom.min.js"></script>
-
-    <!-- Babel -->
-<!--
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-<!--
-    <style>
-        /* your full CSS left untouched */
-        * { box-sizing: border-box; }
-        body {
-            margin: 0; padding: 0; min-height: 100vh;
-            display: flex; justify-content: center; align-items: flex-start;
-            background:
-                radial-gradient(circle at 10% 0%, rgba(255,0,128,0.22), transparent 55%),
-                radial-gradient(circle at 90% 100%, rgba(0,255,255,0.18), transparent 50%),
-                linear-gradient(135deg, #020617 0%, #050816 50%, #020617 100%);
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", Arial, sans-serif;
-            color: #e5e7eb;
-        }
-        #root { width: 100%; max-width: 1200px; padding: 20px; }
-
-        .app-shell { width: 100%; }
-        .app-shell-inner {
-            border-radius: 18px; padding: 24px 24px 28px;
-            background:
-                radial-gradient(circle at 0 0, rgba(255,255,255,0.06), transparent 55%),
-                radial-gradient(circle at 100% 100%, rgba(148,163,184,0.12), transparent 55%),
-                rgba(15,23,42,0.88);
-            border: 1px solid rgba(148,163,184,0.3);
-            box-shadow: 0 22px 60px rgba(0,0,0,0.75);
-        }
-
-        .app-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .app-title {
-            font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: #9ca3af;
-        }
-        .app-pill {
-            padding: 4px 10px; font-size: 11px; border-radius: 999px;
-            border: 1px solid rgba(148,163,184,0.6); background: rgba(15,23,42,0.85); color: #e5e7eb;
-        }
-
-        .container {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
-        }
-        @media (max-width: 820px) {
-            .container { grid-template-columns: 1fr; }
-        }
-
-        .panel {
-            border-radius: 14px; padding: 16px;
-            background:
-                radial-gradient(circle at 0 0, rgba(148,163,184,0.16), transparent 55%),
-                rgba(15,23,42,0.88);
-            border: 1px solid rgba(75,85,99,0.7);
-        }
-
-        .panel-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .panel-title {
-            font-size: 12px; text-transform: uppercase; letter-spacing: 0.15em;
-            color: #9ca3af;
-        }
-
-        .panel-subtitle { font-size: 11px; color: #6b7280; }
-
-        .list-body, .ranked-list {
-            border-radius: 10px; padding: 10px;
-            background: radial-gradient(circle at 0 0, rgba(15,23,42,1), rgba(15,23,42,0.8));
-            border: 1px solid rgba(55,65,81,0.9);
-            max-height: 420px; overflow-y: auto;
-        }
-
-        .hint {
-            font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em;
-            color: #6b7280; margin-bottom: 6px;
-        }
-
-        .item, .ranked-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 7px 9px; margin-bottom: 6px; border-radius: 9px;
-            font-size: 13px;
-            background: linear-gradient(135deg, rgba(15,23,42,0.85), rgba(17,24,39,0.9));
-            border: 1px solid rgba(75,85,99,0.8);
-            cursor: grab;
-        }
-
-        .rank-number { font-size: 11px; margin-right: 8px; color: #94a3b8; }
-
-        .ranked-empty-state { font-size: 12px; color: #6b7280; font-style: italic; }
-
-        .primary-button {
-            padding: 10px 18px; border-radius: 999px; font-size: 13px;
-            background: #3b3b3b; border: 1px solid #565656; color: #e5e7eb;
-            text-transform: uppercase; cursor: pointer;
-        }
-        .primary-button:hover { background: #4a4a4a; }
-        .primary-button:active {
-            box-shadow: 0 0 18px rgba(45,212,191,0.7);
-            border-color: #2dd4bf; color: #2dd4bf;
-        }
-    </style>
-</head>
-
-<body>
-<div id="root"></div>
-
-<script type="text/babel">
-const { BrowserRouter, Switch, Route, useHistory, useParams } = window.ReactRouterDOM;
-const { useState, useEffect } = React;
-
-/* ---------------- HOME SCREEN ---------------- */
-function HomeScreen() {
-    const history = useHistory();
-    return (
-        <div className="app-shell">
-            <div className="app-shell-inner">
-                <div className="app-header">
-                    <div className="app-title">Listr · Al-Beiruti Holdings</div>
-                    <div className="app-pill">LIST ENGINE · v0.1</div>
-                </div>
-
-                <div>
-                    <div className="home-heading">Create a list</div>
-                    <div className="home-subtitle">Spin up a ranking grid…</div>
-                    <button className="primary-button" onClick={() => history.push("/create")}>
-                        CREATE A LIST ↗
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-/* ---------------- CREATE SCREEN ---------------- */
-function CreateListScreen({ setListItems }) {
-    const history = useHistory();
-    const [rawText, setRawText] = useState("");
-
-    async function handleStartRanking() {
-        const lines = rawText.split("\n").map(x => x.trim()).filter(Boolean);
-        if (!lines.length) { alert("Give me at least one item."); return; }
-
-        setListItems(lines);
-
-        let id = null;
-        try {
-            const res = await fetch("/api/list", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ items: lines })
-            });
-            const data = await res.json();
-            id = data?.id || null;
-        } catch {}
-
-        if (id) history.push(`/list/${id}/rank`);
-        else history.push("/rank"); // fallback
-    }
-
-    return (
-        <div className="app-shell">
-            <div className="app-shell-inner">
-                <div className="app-header">
-                    <div className="app-title">Listr · Define your list</div>
-                    <div className="app-pill">INPUT STAGE</div>
-                </div>
-
-                <textarea
-                    className="textarea"
-                    value={rawText}
-                    onChange={e => setRawText(e.target.value)}
-                />
-
-                <button className="primary-button" onClick={handleStartRanking}>
-                    START RANKING ▶
-                </button>
-            </div>
-        </div>
-    );
-}
-
-/* ---------------- RANKING SCREEN ---------------- */
-function RankingScreen() {
-    const { listId } = useParams();
-    const [items, setItems] = useState([]);
-    const [rankedItems, setRankedItems] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        async function load() {
-            try {
-                const res = await fetch(`/api/list/${listId}`);
-                const data = await res.json();
-                setItems(data.items || []);
-            } catch {}
-            setLoading(false);
-        }
-        load();
-    }, [listId]);
-
-    function dragStartAvail(e, item) {
-        e.dataTransfer.setData("t", "avail");
-        e.dataTransfer.setData("item", item);
-    }
-    function dragStartRank(e, index) {
-        e.dataTransfer.setData("t", "rank");
-        e.dataTransfer.setData("i", index);
-    }
-    function onDropContainer(e) {
-        e.preventDefault();
-        const type = e.dataTransfer.getData("t");
-
-        if (type === "avail") {
-            const item = e.dataTransfer.getData("item");
-            if (!rankedItems.includes(item)) {
-                setRankedItems([...rankedItems, item]);
-                setItems(items.filter(i => i !== item));
-            }
-        }
-    }
-
-    if (loading) return <div>Loading…</div>;
-
-    return (
-        <div className="app-shell">
-            <div className="app-shell-inner">
-                <div className="app-header">
-                    <div className="app-title">Listr · Rank Items</div>
-                    <div className="app-pill">LIST #{listId}</div>
-                </div>
-
-                <div className="container">
-                    {/* LEFT */}
-                    <div className="panel">
-                        <div className="panel-header">
-                            <div>
-                                <div className="panel-title">Available Items</div>
-                                <div className="panel-subtitle">Drag to the right →</div>
-                            </div>
-                        </div>
-
-                        <div className="list-body">
-                            <div className="hint">drag items to rank them</div>
-                            {items.map(item => (
-                                <div
-                                    key={item}
-                                    className="item"
-                                    draggable
-                                    onDragStart={e => dragStartAvail(e, item)}
-                                >
-                                    {item}
-                                </div>
-                            ))}
-                            {!items.length && <div className="ranked-empty-state">all drafted</div>}
-                        </div>
-                    </div>
-
-                    {/* RIGHT */}
-                    <div className="panel">
-                        <div className="panel-header">
-                            <div className="panel-title">Ranking Stack</div>
-                        </div>
-
-                        <div
-                            className="ranked-list"
-                            onDragOver={e => e.preventDefault()}
-                            onDrop={onDropContainer}
-                        >
-                            {!rankedItems.length &&
-                                <div className="ranked-empty-state">drop items here</div>
-                            }
-
-                            {rankedItems.map((item, i) => (
-                                <div
-                                    key={item}
-                                    className="ranked-item"
-                                    draggable
-                                    onDragStart={e => dragStartRank(e, i)}
-                                >
-                                    <span><span className="rank-number">#{i + 1}</span>{item}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-/* ---------------- APP + ROUTES ---------------- */
-function App() {
-    const [listItems, setListItems] = useState([]);
-
-    return (
-        <BrowserRouter>
-            <Switch>
-                <Route exact path={["/", "/listr"]}>
-                    <HomeScreen />
-                </Route>
-
-                <Route exact path="/create">
-                    <CreateListScreen setListItems={setListItems} />
-                </Route>
-
-                <Route exact path="/list/:listId/rank">
-                    <RankingScreen />
-                </Route>
-            </Switch>
-        </BrowserRouter>
-    );
-}
-
-/* ---------------- MOUNT APP ---------------- */
-ReactDOM.render(<App />, document.getElementById("root"));
-</script>
 </body>
 </html>
